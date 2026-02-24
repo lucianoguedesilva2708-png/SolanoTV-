@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolanoTV - Oficial</title>
+    <style>
+        body { background: #0d0d0d; color: white; font-family: sans-serif; margin: 0; padding: 15px; }
+        header { text-align: center; color: #e50914; font-size: 28px; font-weight: bold; margin-bottom: 25px; text-transform: uppercase; }
+        
+        /* GRID DE CATEGORIAS */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 40px; }
+        .cat-card { 
+            height: 140px; border-radius: 10px; background-size: cover; background-position: center;
+            display: flex; align-items: flex-end; text-decoration: none; border: 2px solid #333; overflow: hidden;
+        }
+        .cat-title { background: rgba(0,0,0,0.85); width: 100%; padding: 10px; text-align: center; font-weight: bold; font-size: 13px; color: white; }
+
+        /* PAINEL ADM */
+        #painel-adm { display: none; background: #1a1a1a; padding: 20px; border-radius: 10px; border: 2px solid #e50914; margin-top: 50px; }
+        .adm-btn { background: transparent; color: #333; border: none; padding: 10px; width: 100%; border-radius: 5px; font-size: 10px; margin-top: 100px; cursor: pointer; }
+        
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box; background: #333; color: white; }
+        .btn-gerar { background: #e50914; color: white; border: none; padding: 15px; border-radius: 5px; width: 100%; font-weight: bold; cursor: pointer; }
+        
+        #resultado-codigo { background: #000; color: #0f0; padding: 15px; border-radius: 5px; white-space: pre-wrap; display: none; margin-top: 20px; border: 1px dashed #666; font-family: monospace; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+    <header>SOLANOTV</header>
+
+    <div class="grid" id="lista-conteudo">
+        <a href="#" class="cat-card" style="background-image: url('https://cesardi.com.br/wp-content/uploads/2024/01/lanamento.png');">
+            <div class="cat-title">FILMES</div>
+        </a>
+        
+        <a href="#" class="cat-card" style="background-image: url('https://cdn.textstudio.com/text-effect/1314/e2d80/Anime.webp');">
+            <div class="cat-title">ANIMES</div>
+        </a>
+
+        <a href="#" class="cat-card" style="background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrou8668g4K1KkH4U8WrHcUuCv8OV-NO4VzOtlW5TqjQ&s=10');">
+            <div class="cat-title">SÉRIES</div>
+        </a>
+    </div>
+
+    <button class="adm-btn" onclick="acessarAdm()">ACESSO RESTRITO ADM</button>
+
+    <div id="painel-adm">
+        <h3>Painel ADM SolanoTV</h3>
+        <p>Gere o código para novas capas ou episódios:</p>
+        
+        <select id="tipo">
+            <option value="capa">Adicionar Nova Capa</option>
+            <option value="video">Adicionar Episódio/Link</option>
+        </select>
+        
+        <input type="text" id="titulo" placeholder="Nome (Ex: Manifest ou Naruto)">
+        <input type="text" id="img-link" placeholder="Link da Imagem do Poster">
+        <input type="text" id="vid-link" placeholder="Link do Vídeo (Player)">
+        
+        <button class="btn-gerar" onclick="gerarCodigo()">GERAR CÓDIGO</button>
+
+        <div id="resultado-codigo"></div>
+    </div>
+
+    <script>
+        function acessarAdm() {
+            const senha = prompt("Senha de Administrador:");
+            if (senha === "200223") {
+                document.getElementById('painel-adm').style.display = "block";
+                window.scrollTo(0, document.body.scrollHeight);
+            } else {
+                alert("Senha Incorreta!");
+            }
+        }
+
+        function gerarCodigo() {
+            const tipo = document.getElementById('tipo').value;
+            const titulo = document.getElementById('titulo').value;
+            const img = document.getElementById('img-link').value;
+            const vid = document.getElementById('vid-link').value;
+            const res = document.getElementById('resultado-codigo');
+
+            let codigo = "";
+            if(tipo === "capa") {
+                codigo = `\n<a href="video.html?url=${vid}" class="cat-card" style="background-image: url('${img}');">\n <div class="cat-title">${titulo}</div>\n</a>`;
+            } else {
+                codigo = `\n<a href="video.html?url=${vid}" class="cat-card">\n <div class="cat-title">${titulo} - Assistir</div>\n</a>`;
+            }
+
+            res.innerText = "COPIE E COLE DENTRO DA <div class='grid'> NO TOPO DO ARQUIVO:\n\n" + codigo;
+            res.style.display = "block";
+        }
+    </script>
+
+</body>
+</html>

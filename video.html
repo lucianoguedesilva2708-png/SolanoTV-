@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolanoTV - Player</title>
+    <style>
+        body { 
+            background-color: #0d0d0d; 
+            color: white; 
+            font-family: sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            text-align: center; 
+        }
+        header { 
+            padding: 15px; 
+            background: #1a1a1a; 
+            display: flex; 
+            align-items: center; 
+            border-bottom: 1px solid #333;
+        }
+        .back-btn { 
+            color: #e50914; 
+            text-decoration: none; 
+            font-weight: bold; 
+            margin-right: 20px; 
+            font-size: 18px; 
+        }
+        /* Container para manter o vídeo na proporção 16:9 */
+        .video-container { 
+            position: relative; 
+            width: 100%; 
+            padding-bottom: 56.25%; /* Proporção de tela cheia no celular */
+            height: 0; 
+            background: #000; 
+        }
+        iframe { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+        }
+        .info-video { 
+            padding: 20px; 
+            text-align: left; 
+        }
+        h2 { color: #e50914; margin: 0 0 10px 0; }
+        p { color: #ccc; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="back-btn">← VOLTAR</a>
+        <span style="font-weight: bold; letter-spacing: 1px;">SOLANOTV</span>
+    </header>
+
+    <div class="video-container" id="player">
+        </div>
+
+    <div class="info-video">
+        <h2>Você está assistindo na SolanoTV</h2>
+        <p>Aproveite o melhor conteúdo de filmes, animes e séries direto do seu portal.</p>
+    </div>
+
+    <script>
+        // Função que pega o link enviado pelo index.html e coloca no player
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoUrl = urlParams.get('url');
+        
+        if(videoUrl) {
+            document.getElementById('player').innerHTML = 
+                `<iframe src="${videoUrl}" allowfullscreen scrolling="no"></iframe>`;
+        } else {
+            document.getElementById('player').innerHTML = 
+                `<div style="padding: 50px;">Vídeo não encontrado ou link inválido.</div>`;
+        }
+    </script>
+
+</body>
+</html>
