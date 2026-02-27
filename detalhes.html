@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolanoTV - Detalhes</title>
+    <style>
+        body { background-color: #0d0d0d; color: white; font-family: sans-serif; margin: 0; padding: 0; text-align: center; }
+        header { background-color: #b70909; padding: 15px; font-weight: bold; }
+        .container { padding: 20px; max-width: 600px; margin: auto; }
+        .poster { width: 180px; border-radius: 8px; border: 2px solid #b70909; margin-bottom: 20px; }
+        .btn-assistir { display: block; background: #b70909; color: white; padding: 18px; text-decoration: none; font-weight: bold; font-size: 22px; border-radius: 5px; margin: 25px 0; box-shadow: 0 5px 0 #600; }
+        .info-box { background: #1a1a1a; padding: 15px; border-radius: 5px; text-align: left; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <header>SOLANOTV</header>
+    <div class="container">
+        <img id="det-capa" class="poster" src="">
+        <h2 id="det-titulo"></h2>
+        <p style="color:#aaa; font-size:14px;">Assista agora em alta definição diretamente da SolanoTV.</p>
+        <a href="#" id="link-play" class="btn-assistir">ASSISTIR</a>
+        <div class="info-box">
+            <p><b>Duração:</b> <span id="det-duracao"></span></p>
+            <p><b>Categoria:</b> <span id="det-tipo"></span></p>
+            <p><b>Qualidade:</b> Full HD 1080p</p>
+        </div>
+    </div>
+    <script>
+        const p = new URLSearchParams(window.location.search);
+        document.getElementById('det-titulo').innerText = p.get('nome');
+        document.getElementById('det-capa').src = p.get('capa');
+        document.getElementById('det-duracao').innerText = p.get('duracao');
+        document.getElementById('det-tipo').innerText = p.get('tipo').toUpperCase();
+        document.getElementById('link-play').href = `video.html?${p.toString()}`;
+    </script>
+</body>
+</html>
