@@ -5,80 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SolanoTV - Player</title>
     <style>
-        body { 
-            background-color: #0d0d0d; 
-            color: white; 
-            font-family: sans-serif; 
-            margin: 0; 
-            padding: 0; 
-            text-align: center; 
-        }
-        header { 
-            padding: 15px; 
-            background: #1a1a1a; 
-            display: flex; 
-            align-items: center; 
-            border-bottom: 1px solid #333;
-        }
-        .back-btn { 
-            color: #e50914; 
-            text-decoration: none; 
-            font-weight: bold; 
-            margin-right: 20px; 
-            font-size: 18px; 
-        }
-        /* Container para manter o vídeo na proporção 16:9 */
-        .video-container { 
-            position: relative; 
-            width: 100%; 
-            padding-bottom: 56.25%; /* Proporção de tela cheia no celular */
-            height: 0; 
-            background: #000; 
-        }
-        iframe { 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            border: none; 
-        }
-        .info-video { 
-            padding: 20px; 
-            text-align: left; 
-        }
-        h2 { color: #e50914; margin: 0 0 10px 0; }
-        p { color: #ccc; font-size: 14px; }
+        body { background-color: #0d0d0d; color: white; font-family: sans-serif; margin: 0; padding: 0; }
+        .player-wrap { position: relative; width: 100%; padding-bottom: 56.25%; background: #000; }
+        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .list-area { padding: 15px; }
+        .ep-row { display: flex; align-items: center; background: #1a1a1a; margin-bottom: 10px; text-decoration: none; color: white; padding: 8px; border-radius: 4px; }
+        .ep-row img { width: 80px; height: 50px; object-fit: cover; margin-right: 12px; border-radius: 2px; }
+        .ep-row.active { border-left: 4px solid #b70909; background: #252525; }
     </style>
 </head>
 <body>
-
-    <header>
-        <a href="index.html" class="back-btn">← VOLTAR</a>
-        <span style="font-weight: bold; letter-spacing: 1px;">SOLANOTV</span>
-    </header>
-
-    <div class="video-container" id="player">
-        </div>
-
-    <div class="info-video">
-        <h2>Você está assistindo na SolanoTV</h2>
-        <p>Aproveite o melhor conteúdo de filmes, animes e séries direto do seu portal.</p>
+    <div class="player-wrap" id="main-player"></div>
+    <div class="list-area" id="list-area">
+        <h4 id="title-list">Episódios:</h4>
+        <div id="ep-container"></div>
     </div>
-
     <script>
-        // Função que pega o link enviado pelo index.html e coloca no player
-        const urlParams = new URLSearchParams(window.location.search);
-        const videoUrl = urlParams.get('url');
-        
-        if(videoUrl) {
-            document.getElementById('player').innerHTML = 
-                `<iframe src="${videoUrl}" allowfullscreen scrolling="no"></iframe>`;
+        const p = new URLSearchParams(window.location.search);
+        const links = p.get('eps').split(',');
+        const container = document.getElementById('ep-container');
+        const player = document.getElementById('main-player');
+
+        function play(url, el) {
+            player.innerHTML = `<iframe src="${url}" allowfullscreen scrolling="no"></iframe>`;
+            document.querySelectorAll('.ep-row').forEach(r => r.classList.remove('active'));
+            if(el) el.classList.add('active');
+        }
+
+        if(p.get('tipo') === 'filme') {
+            document.getElementById('list-area').style.display = 'none';
+            play(links[0]);
         } else {
-            document.getElementById('player').innerHTML = 
-                `<div style="padding: 50px;">Vídeo não encontrado ou link inválido.</div>`;
+            links.forEach((link, i) => {
+                const a = document.createElement('a');
+                a.className = 'ep-row';
+                a.href = "#";
+                a.innerHTML = `<img src="${p.get('capa')}"><div><b>Episódio ${i+1}</b><br><small>Temporada 1</small></div>`;
+                a.onclick = (e) => { e.preventDefault(); play(link, a); };
+                container.appendChild(a);
+                if(i === 0) play(link, a);
+            });
         }
     </script>
-
 </body>
 </html>
