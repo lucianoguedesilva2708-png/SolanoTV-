@@ -1,102 +1,131 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV - Oficial</title>
+    <title>SolanoTV - O Portal do Mistério e Animes</title>
     <style>
-        body { background: #0d0d0d; color: white; font-family: sans-serif; margin: 0; padding: 15px; }
-        header { text-align: center; color: #e50914; font-size: 28px; font-weight: bold; margin-bottom: 25px; text-transform: uppercase; }
+        body { background-color: #0d0d0d; color: white; font-family: sans-serif; margin: 0; padding: 0; }
+        header { background-color: #b70909; padding: 15px; text-align: center; font-weight: bold; font-size: 22px; letter-spacing: 2px; }
         
-        /* GRID DE CATEGORIAS */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 40px; }
-        .cat-card { 
-            height: 140px; border-radius: 10px; background-size: cover; background-position: center;
-            display: flex; align-items: flex-end; text-decoration: none; border: 2px solid #333; overflow: hidden;
-        }
-        .cat-title { background: rgba(0,0,0,0.85); width: 100%; padding: 10px; text-align: center; font-weight: bold; font-size: 13px; color: white; }
+        /* Menu de Categorias */
+        .categorias { display: flex; justify-content: center; gap: 8px; padding: 15px; background: #1a1a1a; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
+        .cat-btn { background: #333; color: white; border: none; padding: 10px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .cat-btn.active { background: #b70909; }
 
-        /* PAINEL ADM */
-        #painel-adm { display: none; background: #1a1a1a; padding: 20px; border-radius: 10px; border: 2px solid #e50914; margin-top: 50px; }
-        .adm-btn { background: transparent; color: #333; border: none; padding: 10px; width: 100%; border-radius: 5px; font-size: 10px; margin-top: 100px; cursor: pointer; }
+        /* Grid de Conteúdo Profissional */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; }
+        .card { position: relative; background: #1a1a1a; border-radius: 4px; overflow: hidden; text-decoration: none; color: white; border: 1px solid #333; }
+        .card img { width: 100%; height: 160px; object-fit: cover; display: block; }
         
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box; background: #333; color: white; }
-        .btn-gerar { background: #e50914; color: white; border: none; padding: 15px; border-radius: 5px; width: 100%; font-weight: bold; cursor: pointer; }
-        
-        #resultado-codigo { background: #000; color: #0f0; padding: 15px; border-radius: 5px; white-space: pre-wrap; display: none; margin-top: 20px; border: 1px dashed #666; font-family: monospace; font-size: 11px; }
+        /* Etiquetas do Card */
+        .info-top { position: absolute; top: 5px; width: 90%; display: flex; justify-content: space-between; left: 5%; font-size: 9px; font-weight: bold; }
+        .tag-duracao { background: rgba(0, 0, 0, 0.7); padding: 2px 4px; border-radius: 2px; }
+        .tag-dub { background: #b70909; padding: 2px 4px; border-radius: 2px; }
+        .tag-hd { position: absolute; bottom: 35px; left: 5px; background: #b70909; font-size: 9px; padding: 2px 4px; border-radius: 2px; }
+        .card h3 { font-size: 11px; padding: 8px 5px; margin: 0; text-align: center; background: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Painel ADM */
+        #painel-adm { background: #1a1a1a; padding: 20px; border-radius: 10px; margin: 20px; border: 2px dashed #b70909; display: none; }
+        label { font-size: 12px; color: #aaa; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
+        .btn-gerar { background: #b70909; color: white; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        #resultado-codigo { background: #000; color: #0f0; padding: 15px; margin-top: 15px; display: none; font-family: monospace; font-size: 11px; word-break: break-all; border: 1px solid #0f0; }
+        .adm-trigger { opacity: 0.1; padding: 20px; width: 100%; background: none; border: none; color: white; margin-top: 50px; }
     </style>
 </head>
 <body>
 
     <header>SOLANOTV</header>
 
+    <div class="categorias">
+        <button class="cat-btn active" onclick="filtrar('all', this)">TUDO</button>
+        <button class="cat-btn" onclick="filtrar('filme', this)">FILMES</button>
+        <button class="cat-btn" onclick="filtrar('serie', this)">SÉRIES</button>
+        <button class="cat-btn" onclick="filtrar('anime', this)">ANIMES</button>
+    </div>
+
     <div class="grid" id="lista-conteudo">
-        <a href="#" class="cat-card" style="background-image: url('https://cesardi.com.br/wp-content/uploads/2024/01/lanamento.png');">
-            <div class="cat-title">FILMES</div>
-        </a>
-        
-        <a href="#" class="cat-card" style="background-image: url('https://cdn.textstudio.com/text-effect/1314/e2d80/Anime.webp');">
-            <div class="cat-title">ANIMES</div>
-        </a><a href="video.html?url=https://mixdrop.top/e/gjkxje07hro4zl" class="cat-card">
- <div class="cat-title">Jigokurako episódio 7 - Assistir</div>
-        </a>
+        </div>
 
-        <a href="#" class="cat-card" style="background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrou8668g4K1KkH4U8WrHcUuCv8OV-NO4VzOtlW5TqjQ&s=10');">
-            <div class="cat-title">SÉRIES</div>
-        </a>
-    </div><a href="video.html?url=" class="cat-card" style="background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL3gMcgl0hu6EPjGWG-wsHTYUgI0NY3xpUtaJluh4jcg3WIGsqtUh8jCFZ&s=10');">
- <div class="cat-title">Manifest </div>
-</a>
-
-    <button class="adm-btn" onclick="acessarAdm()">ACESSO RESTRITO ADM</button>
+    <button class="adm-trigger" onclick="abrirPainel()">ACESSO ADM</button>
 
     <div id="painel-adm">
-        <h3>Painel ADM SolanoTV</h3>
-        <p>Gere o código para novas capas ou episódios:</p>
-        
-        <select id="tipo">
-            <option value="capa">Adicionar Nova Capa</option>
-            <option value="video">Adicionar Episódio/Link</option>
+        <h3>Adicionar Conteúdo</h3>
+        <label>1. Escolha a Categoria:</label>
+        <select id="adm-tipo">
+            <option value="filme">FILME</option>
+            <option value="serie">SÉRIE</option>
+            <option value="anime">ANIME</option>
         </select>
-        
-        <input type="text" id="titulo" placeholder="Nome (Ex: Manifest ou Naruto)">
-        <input type="text" id="img-link" placeholder="Link da Imagem do Poster">
-        <input type="text" id="vid-link" placeholder="Link do Vídeo (Player)">
+
+        <label>2. Repetir capa de algo já existente?</label>
+        <select id="seletor-existente" onchange="puxarCapa()">
+            <option value="">-- Novo Conteúdo --</option>
+        </select>
+
+        <input type="text" id="adm-nome" placeholder="Nome (Ex: Manifest)">
+        <input type="text" id="adm-duracao" placeholder="Duração/Ano (Ex: 45min)">
+        <input type="text" id="adm-capa" placeholder="Link da Imagem da Capa">
+        <textarea id="adm-links" placeholder="Links do MixDrop (separe por vírgula)" rows="3"></textarea>
         
         <button class="btn-gerar" onclick="gerarCodigo()">GERAR CÓDIGO</button>
-
-        <div id="resultado-codigo"></div>
+        
+        <div id="resultado-codigo">
+            <p>Copie e cole no arquivo do GitHub:</p>
+            <code id="codigo-final"></code>
+        </div>
     </div>
 
     <script>
-        function acessarAdm() {
-            const senha = prompt("Senha de Administrador:");
-            if (senha === "200223") {
-                document.getElementById('painel-adm').style.display = "block";
-                window.scrollTo(0, document.body.scrollHeight);
-            } else {
-                alert("Senha Incorreta!");
+        function abrirPainel() {
+            if (prompt("Senha:") === "200223") {
+                document.getElementById('painel-adm').style.display = 'block';
+                atualizarSeletor();
             }
+        }
+
+        function atualizarSeletor() {
+            const cards = document.querySelectorAll('.card');
+            const seletor = document.getElementById('seletor-existente');
+            seletor.innerHTML = '<option value="">-- Novo Conteúdo --</option>';
+            cards.forEach(card => {
+                const opt = document.createElement('option');
+                opt.value = card.querySelector('img').src;
+                opt.text = card.querySelector('h3').innerText;
+                seletor.appendChild(opt);
+            });
+        }
+
+        function puxarCapa() {
+            const sel = document.getElementById('seletor-existente');
+            if(sel.value) {
+                document.getElementById('adm-capa').value = sel.value;
+                document.getElementById('adm-nome').value = sel.options[sel.selectedIndex].text;
+            }
+        }
+
+        function filtrar(cat, btn) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.card').forEach(card => {
+                card.style.display = (cat === 'all' || card.getAttribute('data-cat') === cat) ? 'block' : 'none';
+            });
         }
 
         function gerarCodigo() {
-            const tipo = document.getElementById('tipo').value;
-            const titulo = document.getElementById('titulo').value;
-            const img = document.getElementById('img-link').value;
-            const vid = document.getElementById('vid-link').value;
-            const res = document.getElementById('resultado-codigo');
+            const tipo = document.getElementById('adm-tipo').value;
+            const nome = document.getElementById('adm-nome').value;
+            const duracao = document.getElementById('adm-duracao').value;
+            const capa = document.getElementById('adm-capa').value;
+            const links = document.getElementById('adm-links').value;
+            
+            const codigo = `<a href="detalhes.html?nome=${nome}&capa=${capa}&duracao=${duracao}&tipo=${tipo}&eps=${links}" class="card" data-cat="${tipo}"><div class="info-top"><span class="tag-duracao">${duracao}</span><span class="tag-dub">DUB</span></div><img src="${capa}"><span class="tag-hd">HD</span><h3>${nome}</h3></a>`;
 
-            let codigo = "";
-            if(tipo === "capa") {
-                codigo = `\n<a href="video.html?url=${vid}" class="cat-card" style="background-image: url('${img}');">\n <div class="cat-title">${titulo}</div>\n</a>`;
-            } else {
-                codigo = `\n<a href="video.html?url=${vid}" class="cat-card">\n <div class="cat-title">${titulo} - Assistir</div>\n</a>`;
-            }
-
-            res.innerText = "COPIE E COLE DENTRO DA <div class='grid'> NO TOPO DO ARQUIVO:\n\n" + codigo;
-            res.style.display = "block";
+            document.getElementById('codigo-final').innerText = codigo;
+            document.getElementById('resultado-codigo').style.display = 'block';
         }
     </script>
-
 </body>
 </html>
