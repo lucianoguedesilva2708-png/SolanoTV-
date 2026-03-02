@@ -1,78 +1,83 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV - Detalhes</title>
+    <title>SolanoTV - Assistir</title>
     <style>
         body { background-color: #0d0d0d; color: white; font-family: sans-serif; margin: 0; padding: 0; text-align: center; }
         header { background-color: #b70909; padding: 15px; font-weight: bold; font-size: 20px; }
+        
         .container { padding: 20px; max-width: 800px; margin: auto; }
-        .video-box { display: none; width: 100%; position: relative; padding-bottom: 56.25%; height: 0; background: #000; margin-bottom: 20px; border: 2px solid #b70909; }
-        .video-box iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .poster { width: 150px; border-radius: 8px; border: 2px solid #333; margin-bottom: 15px; }
-        .ep-list { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 15px 0; }
-        .ep-btn { background: #1a1a1a; color: white; border: 1px solid #b70909; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .ep-btn.active { background: #b70909; font-weight: bold; }
-        .info-box { background: #1a1a1a; padding: 15px; border-radius: 5px; text-align: left; font-size: 14px; margin-top: 20px; }
-        .btn-voltar { display: inline-block; margin-top: 20px; color: #aaa; text-decoration: none; font-size: 13px; border-bottom: 1px solid #aaa; }
+        .capa-bg { width: 100%; max-height: 300px; object-fit: cover; border-radius: 10px; filter: brightness(0.5); margin-bottom: 20px; }
+        
+        .video-box { position: relative; width: 100%; padding-top: 56.25%; background: #000; border-radius: 10px; overflow: hidden; border: 2px solid #333; }
+        
+        /* PLAYER LIMPO: REMOVI AS RESTRIÇÕES DE SANDBOX AQUI */
+        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+        .lista-eps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+        .ep-btn { background: #1a1a1a; color: white; border: 1px solid #333; padding: 10px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .ep-btn:hover { background: #b70909; border-color: #b70909; }
+        .ep-btn.active { background: #b70909; border-color: #fff; }
+
+        .voltar { display: inline-block; margin-top: 30px; color: #aaa; text-decoration: none; font-size: 14px; }
     </style>
 </head>
 <body>
-    <header>SOLANOTV</header>
+
+    <header id="titulo-pagina">SOLANOTV</header>
+
     <div class="container">
-        <div id="player-container" class="video-box">
-            <iframe id="video-iframe" src="" 
-                    sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-popups allow-presentation allow-popups-to-escape-sandbox" 
-                    allowfullscreen="true">
-            </iframe>
+        <img id="capa-detalhe" class="capa-bg" src="">
+        
+        <div class="video-box">
+            <iframe id="video-iframe" src="" allowfullscreen></iframe>
         </div>
-        <div id="detalhes-inicial">
-            <img id="det-capa" class="poster" src="">
-            <h2 id="det-titulo"></h2>
-            <p style="color:#aaa; font-size:14px;">Selecione o episódio abaixo:</p>
-        </div>
-        <div class="ep-list" id="lista-eps"></div>
-        <div class="info-box">
-            <p><b>Duração:</b> <span id="det-duracao"></span></p>
-            <p><b>Categoria:</b> <span id="det-tipo"></span></p>
-            <p><b>Status:</b> Player em Modo de Compatibilidade ✅</p>
-        </div>
-        <a href="index.html" class="btn-voltar">← Voltar para a Início</a>
+
+        <h2 id="nome-detalhe">Nome do Conteúdo</h2>
+        <div class="lista-eps" id="lista-eps">
+            </div>
+
+        <a href="index.html" class="voltar">← Voltar para a Início</a>
     </div>
+
     <script>
-        const p = new URLSearchParams(window.location.search);
-        document.getElementById('det-titulo').innerText = p.get('nome');
-        document.getElementById('det-capa').src = p.get('capa');
-        document.getElementById('det-duracao').innerText = p.get('duracao');
-        document.getElementById('det-tipo').innerText = (p.get('tipo') || 'Série').toUpperCase();
+        const params = new URLSearchParams(window.location.search);
+        const nome = params.get('nome');
+        const capa = params.get('capa');
+        const epsString = params.get('eps');
 
-        const linksString = p.get('eps');
-        const links = linksString ? linksString.split(',') : [];
-        const playerContainer = document.getElementById('player-container');
-        const videoIframe = document.getElementById('video-iframe');
-        const listaEps = document.getElementById('lista-eps');
+        document.getElementById('nome-detalhe').innerText = nome;
+        document.getElementById('capa-detalhe').src = capa;
 
-        function playVideo(url, btn) {
-            playerContainer.style.display = 'block';
-            document.getElementById('detalhes-inicial').style.display = 'none';
-            
-            // Força a substituição de /d/ por /e/ caso tenha sobrado algum link errado
-            let finalUrl = url.trim().replace('/d/', '/e/');
-            
-            videoIframe.src = finalUrl;
-            document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (epsString) {
+            const eps = epsString.split(',');
+            const listaDiv = document.getElementById('lista-eps');
+
+            eps.forEach((link, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'ep-btn';
+                btn.innerText = `EP ${index + 1}`;
+                btn.onclick = () => carregarVideo(link, btn);
+                listaDiv.appendChild(btn);
+
+                // Carrega o primeiro episódio automaticamente
+                if (index === 0) carregarVideo(link, btn);
+            });
         }
 
-        links.forEach((link, i) => {
-            const btn = document.createElement('button');
-            btn.className = 'ep-btn';
-            btn.innerText = (links.length > 1) ? `EP ${i + 1}` : "ASSISTIR AGORA";
-            btn.onclick = () => playVideo(link, btn);
-            listaEps.appendChild(btn);
-        });
+        function carregarVideo(url, btn) {
+            document.getElementById('video-iframe').src = url;
+            
+            // Marca o botão do episódio atual
+            document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Rola a tela para o topo para ver o player
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     </script>
 </body>
 </html>
