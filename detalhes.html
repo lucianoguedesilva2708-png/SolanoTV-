@@ -23,20 +23,20 @@
     <div class="container">
         <div id="player-container" class="video-box">
             <iframe id="video-iframe" src="" 
-                    sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-popups allow-presentation" 
+                    sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-popups allow-presentation allow-popups-to-escape-sandbox" 
                     allowfullscreen="true">
             </iframe>
         </div>
         <div id="detalhes-inicial">
             <img id="det-capa" class="poster" src="">
             <h2 id="det-titulo"></h2>
-            <p id="msg-informativa" style="color:#aaa; font-size:14px;">Selecione o episódio abaixo:</p>
+            <p style="color:#aaa; font-size:14px;">Selecione o episódio abaixo:</p>
         </div>
         <div class="ep-list" id="lista-eps"></div>
         <div class="info-box">
             <p><b>Duração:</b> <span id="det-duracao"></span></p>
             <p><b>Categoria:</b> <span id="det-tipo"></span></p>
-            <p><b>Status:</b> Player Otimizado ✅</p>
+            <p><b>Status:</b> Player em Modo de Compatibilidade ✅</p>
         </div>
         <a href="index.html" class="btn-voltar">← Voltar para a Início</a>
     </div>
@@ -56,7 +56,11 @@
         function playVideo(url, btn) {
             playerContainer.style.display = 'block';
             document.getElementById('detalhes-inicial').style.display = 'none';
-            videoIframe.src = url.trim();
+            
+            // Força a substituição de /d/ por /e/ caso tenha sobrado algum link errado
+            let finalUrl = url.trim().replace('/d/', '/e/');
+            
+            videoIframe.src = finalUrl;
             document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
