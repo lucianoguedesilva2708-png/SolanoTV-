@@ -3,62 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV - Oficial</title>
+    <title>SolanoTV - O Portal do Mistério e Animes</title>
     <style>
         body { background-color: #0d0d0d; color: white; font-family: sans-serif; margin: 0; padding: 0; }
-        header { background-color: #b70909; padding: 15px; text-align: center; font-weight: bold; font-size: 22px; }
+        header { background-color: #b70909; padding: 15px; text-align: center; font-weight: bold; font-size: 22px; letter-spacing: 2px; }
+        
         .categorias { display: flex; justify-content: center; gap: 8px; padding: 15px; background: #1a1a1a; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; overflow-x: auto; }
-        .cat-btn { background: #333; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .cat-btn { background: #333; color: white; border: none; padding: 10px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; white-space: nowrap; }
         .cat-btn.active { background: #b70909; }
+
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; }
-        .card { background: #1a1a1a; border-radius: 4px; overflow: hidden; text-decoration: none; color: white; border: 1px solid #333; display: flex; flex-direction: column; }
-        .card img { width: 100%; height: 150px; object-fit: cover; background: #222; }
-        .card h3 { font-size: 10px; padding: 8px 5px; margin: 0; text-align: center; }
+        .card { position: relative; background: #1a1a1a; border-radius: 4px; overflow: hidden; text-decoration: none; color: white; border: 1px solid #333; }
+        .card img { width: 100%; height: 160px; object-fit: cover; display: block; }
+        
+        .info-top { position: absolute; top: 5px; width: 90%; display: flex; justify-content: space-between; left: 5%; font-size: 9px; font-weight: bold; }
+        .tag-duracao { background: rgba(0, 0, 0, 0.7); padding: 2px 4px; border-radius: 2px; }
+        .tag-dub { background: #b70909; padding: 2px 4px; border-radius: 2px; }
+        .tag-hd { position: absolute; bottom: 35px; left: 5px; background: #b70909; font-size: 9px; padding: 2px 4px; border-radius: 2px; }
+        .card h3 { font-size: 11px; padding: 8px 5px; margin: 0; text-align: center; background: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        #painel-adm { background: #1a1a1a; padding: 20px; border-radius: 10px; margin: 20px; border: 2px dashed #b70909; display: none; }
+        label { font-size: 12px; color: #aaa; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
+        .btn-gerar { background: #b70909; color: white; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        #resultado-codigo { background: #000; color: #0f0; padding: 15px; margin-top: 15px; display: none; font-family: monospace; font-size: 11px; word-break: break-all; border: 1px solid #0f0; }
+        .adm-trigger { opacity: 0.1; padding: 20px; width: 100%; background: none; border: none; color: white; margin-top: 50px; }
     </style>
 </head>
 <body>
 
-<header>SOLANOTV</header>
+    <header>SOLANOTV</header>
 
-<div class="categorias">
-    <button class="cat-btn" onclick="filtrar('tv', this)">CANAIS</button>
-    <button class="cat-btn" onclick="filtrar('serie', this)">SÉRIES</button>
-    <button class="cat-btn active" onclick="filtrar('anime', this)">ANIMES</button>
-</div>
+    <div class="categorias">
+        <button class="cat-btn active" onclick="filtrar('all', this)">TUDO</button>
+        <button class="cat-btn" onclick="filtrar('tv', this)">CANAIS</button>
+        <button class="cat-btn" onclick="filtrar('filme', this)">FILMES</button>
+        <button class="cat-btn" onclick="filtrar('serie', this)">SÉRIES</button>
+        <button class="cat-btn" onclick="filtrar('anime', this)">ANIMES</button>
+    </div>
 
-<div class="grid" id="lista-conteudo">
-    
-    <a href="detalhes.html?nome=Jigokuraku&capa=https://image.tmdb.org/t/p/w500/7vKxl9I4DksS8B0lJpXf98Y0BvN.jpg&eps=https://redecanaistv.ooo/player3/anime.php?nome=jigokuraku" class="card" data-cat="anime">
-        <img src="https://image.tmdb.org/t/p/w500/7vKxl9I4DksS8B0lJpXf98Y0BvN.jpg">
-        <h3>Jigokuraku</h3>
-    </a>
+    <div class="grid" id="lista-conteudo">
+        
+        <a href="detalhes.html?nome=Jigokuraku&capa=https://image-cdn.hypb.st/https%3A%2F%2Fhypebeast.com%2Fimage%2F2025%2F11%2F30%2Fhells-paradise-jigokuraku-season-2-anime-release-date-key-visual-0001.jpg?q=75&w=800&cbr=1&fit=max&duracao=8 Eps&tipo=anime&eps=https://mixdrop.top/e/vkzrodrdfodxw9,https://mixdrop.top/e/679gzj9win9d13,https://mixdrop.top/e/ow9ro3mptlq9jle,https://mixdrop.top/e/wlmr6og4t0pkzle,https://mixdrop.top/e/gjkxje07hro4zl,https://mixdrop.top/e/8lqx37qzujmnnl" class="card" data-cat="anime">
+            <div class="info-top"><span class="tag-duracao">8 Eps</span><span class="tag-dub">DUB</span></div>
+            <img src="https://image-cdn.hypb.st/https%3A%2F%2Fhypebeast.com%2Fimage%2F2025%2F11%2F30%2Fhells-paradise-jigokuraku-season-2-anime-release-date-key-visual-0001.jpg?q=75&w=800&cbr=1&fit=max">
+            <span class="tag-hd">HD</span>
+            <h3>Jigokuraku</h3>
+        </a>
 
-    <a href="detalhes.html?nome=Vigilante&capa=https://m.media-amazon.com/images/M/MV5BMGU5MTk1YjItY2JmNy00N2Y4LThhNjAtYjU5YmU1YjljNWM2XkEyXkFqcGdeQXVyMTEzMTI1Mjk3._V1_.jpg&eps=https://redecanaistv.ooo/player3/serie.php?nome=vigilante" class="card" data-cat="anime">
-        <img src="https://m.media-amazon.com/images/M/MV5BMGU5MTk1YjItY2JmNy00N2Y4LThhNjAtYjU5YmU1YjljNWM2XkEyXkFqcGdeQXVyMTEzMTI1Mjk3._V1_.jpg">
-        <h3>Vigilante</h3>
-    </a>
+        <a href="detalhes.html?nome=Origem (T1 e T2)&capa=https://indika.tv/images/series7/Origem.jpeg&duracao=20 Eps&tipo=serie&eps=https://bysetayico.com/e/xx43nitm1drj,https://bysetayico.com/e/11ev01b3e9it,https://bysetayico.com/e/dt6g5n9srmo4,https://bysetayico.com/e/ohe6qpwkj3t7,https://bysetayico.com/e/488yn0knvhmb,https://bysetayico.com/e/8065eqspcsbp,https://bysetayico.com/e/j071v43eymb3,https://bysetayico.com/e/scnwou3kh24o,https://bysetayico.com/e/kqcehn98aiqd,https://bysetayico.com/e/ecmzik7vbxgp,https://bysetayico.com/e/7z0wareu1qkq,https://bysetayico.com/e/au59vys0fpv9,https://bysetayico.com/e/h1ubtb66934f,https://bysetayico.com/e/cv1z8ca7qwht,https://bysetayico.com/e/gfsu3mcfqje4,https://bysetayico.com/e/snbct6qztjsz,https://bysetayico.com/e/czps7arjp3sh,https://b7zc1671d2rr,https://bysetayico.com/e/cdam386guas3,https://bysetayico.com/e/zxuj2l4xq2xz" class="card" data-cat="serie">
+            <div class="info-top"><span class="tag-duracao">20 Eps</span><span class="tag-dub">DUB</span></div>
+            <img src="https://indika.tv/images/series7/Origem.jpeg">
+            <span class="tag-hd">HD</span>
+            <h3>Origem - T1 e T2</h3>
+        </a>
 
-    <a href="detalhes.html?nome=Origem (From)&capa=https://image.tmdb.org/t/p/w500/u6Y7pY6H8vMh6y7E0U8v8m2X3Y7.jpg&eps=https://redecanaistv.ooo/player3/serie.php?nome=origem" class="card" data-cat="serie">
-        <img src="https://image.tmdb.org/t/p/w500/u6Y7pY6H8vMh6y7E0U8v8m2X3Y7.jpg">
-        <h3>Origem (From)</h3>
-    </a>
+        <a href="detalhes.html?nome=MHA: Vigilantes&capa=https://www.jbchost.com.br/editorajbc/wp-content/uploads/2020/05/vigilante-mha-illegals-01-capa_p.jpg&duracao=13 Eps&tipo=anime&eps=https://voe.sx/e/bamfa1sj3xth,https://voe.sx/e/7fhwbseip1hl,https://voe.sx/e/amhdznvjsbbj,https://voe.sx/e/bsdlxiuj4urd,https://voe.sx/e/dnsapow68wyf,https://voe.sx/e/ibuuisvvv4k6,https://voe.sx/e/efvaco1kthwp,https://voe.sx/e/et6rv2vasnvr,https://voe.sx/e/psexlvxswfly,https://voe.sx/e/r2saa75trvrv,https://voe.sx/e/fxo4rp8n9vfi,https://voe.sx/e/ddjczyrjwedr,https://voe.sx/e/gitn0omrq8gi" class="card" data-cat="anime">
+            <div class="info-top"><span class="tag-duracao">13 Eps</span><span class="tag-dub">DUB</span></div>
+            <img src="https://www.jbchost.com.br/editorajbc/wp-content/uploads/2020/05/vigilante-mha-illegals-01-capa_p.jpg">
+            <span class="tag-hd">HD</span>
+            <h3>MHA: Vigilantes</h3>
+        </a>
 
-    <a href="player_tv.html?nome=Cartoonito&link=https://redecanaistv.ooo/player3/ch.php?canal=cartoonito" class="card" data-cat="tv">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Cartoonito_logo.svg" style="background:white; padding:10px; object-fit:contain;">
-        <h3>Cartoonito</h3>
-    </a>
+        <a href="detalhes.html?nome=Isshun de Chiryou shiteita noni Yakutatazu to Tsuihou sareta Tensai Chiyushi, Yami Healer toshite Tanoshiku Ikiru&capa=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS55S7rp9o749N4RQm2MP3vmkrUd9nfQgPjjPlftCkHs4T_4_t8bIC90zoA&s=10&duracao=12 Eps&tipo=anime&eps=https://voe.sx/e/sdikz5il6zlv,https://voe.sx/e/k4isok8wsh6l,https://voe.sx/e/lfb4esoqu7kf,https://voe.sx/e/wltdxjnsyeex,https://voe.sx/e/zqyjjtr2wbic,https://voe.sx/e/3ybg1myfiob4,https://voe.sx/e/cfnlunn0iaza,https://voe.sx/e/ecqi2axjgkqo,https://voe.sx/e/jmajdgmbqhnb,https://voe.sx/e/sdzg9abdc5mg,https://voe.sx/e/ikcibxxsporc,https://voe.sx/e/dmadianxg9b7" class="card" data-cat="anime">
+            <div class="info-top"><span class="tag-duracao">12 Eps</span><span class="tag-dub">DUB</span></div>
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS55S7rp9o749N4RQm2MP3vmkrUd9nfQgPjjPlftCkHs4T_4_t8bIC90zoA&s=10">
+            <span class="tag-hd">HD</span>
+            <h3>Yami Healer (Dublado)</h3>
+        </a>
 
-</div>
+    </div>
 
-<script>
-    function filtrar(cat, btn) {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        if(btn) btn.classList.add('active');
-        document.querySelectorAll('.card').forEach(card => {
-            card.style.display = (card.getAttribute('data-cat') === cat) ? 'flex' : 'none';
-        });
-    }
-    window.onload = () => filtrar('anime', document.querySelector('.cat-btn.active'));
-</script>
+    <button class="adm-trigger" onclick="abrirPainel()">ACESSO ADM</button>
+
+    <div id="painel-adm">
+        <h3>Adicionar Conteúdo</h3>
+        <label>1. Escolha a Categoria:</label>
+        <select id="adm-tipo">
+            <option value="tv">CANAL DE TV</option>
+            <option value="filme">FILME</option>
+            <option value="serie">SÉRIE</option>
+            <option value="anime">ANIME</option>
+        </select>
+        <input type="text" id="adm-nome" placeholder="Nome">
+        <input type="text" id="adm-duracao" placeholder="Duração/Eps">
+        <input type="text" id="adm-capa" placeholder="Link da Capa">
+        <textarea id="adm-links" placeholder="Links (separe por vírgula)" rows="3"></textarea>
+        <button class="btn-gerar" onclick="gerarCodigo()">GERAR CÓDIGO</button>
+        <div id="resultado-codigo">
+            <p>Copie e cole no arquivo:</p>
+            <code id="codigo-final"></code>
+        </div>
+    </div>
+
+    <script>
+        function filtrar(cat, btn) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.card').forEach(card => {
+                card.style.display = (cat === 'all' || card.getAttribute('data-cat') === cat) ? 'block' : 'none';
+            });
+        }
+        function abrirPainel() {
+            if (prompt("Senha:") === "200223") {
+                document.getElementById('painel-adm').style.display = 'block';
+            }
+        }
+        function gerarCodigo() {
+            const tipo = document.getElementById('adm-tipo').value;
+            const nome = document.getElementById('adm-nome').value;
+            const duracao = document.getElementById('adm-duracao').value;
+            const capa = document.getElementById('adm-capa').value;
+            const links = document.getElementById('adm-links').value;
+            
+            // Se for TV, aponta para player_tv, se for o resto aponta para detalhes
+            const destino = (tipo === 'tv') ? 'player_tv.html?link=' : 'detalhes.html?nome=';
+            
+            // Monta o código mantendo o seu padrão de tags
+            const codigo = `<a href="${destino}${nome}&capa=${capa}&duracao=${duracao}&tipo=${tipo}&eps=${links}" class="card" data-cat="${tipo}"><div class="info-top"><span class="tag-duracao">${duracao}</span><span class="tag-dub">DUB</span></div><img src="${capa}"><span class="tag-hd">${tipo === 'tv' ? 'LIVE' : 'HD'}</span><h3>${nome}</h3></a>`;
+            
+            document.getElementById('codigo-final').innerText = codigo;
+            document.getElementById('resultado-codigo').style.display = 'block';
+        }
+    </script>
 </body>
-</html>
+            </html>
