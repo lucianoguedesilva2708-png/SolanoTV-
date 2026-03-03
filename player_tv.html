@@ -2,21 +2,35 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>SolanoTV - Player</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <style>body{background:#000;margin:0;display:flex;justify-content:center;align-items:center;height:100vh;}video{width:100%;max-width:900px;aspect-ratio:16/9;}</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player TV - SolanoTV</title>
+    <style>
+        body { background: #000; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: white; font-family: sans-serif; }
+        .container { width: 100%; max-width: 800px; }
+        iframe { width: 100%; height: 450px; border: none; }
+        .voltar { margin-top: 20px; text-decoration: none; color: #b70909; font-weight: bold; border: 1px solid #b70909; padding: 10px 20px; border-radius: 5px; }
+    </style>
 </head>
 <body>
-    <video id="video" controls autoplay></video>
+
+    <div class="container" id="player-container">
+        </div>
+
+    <a href="index.html" class="voltar">⬅ VOLTAR PARA A LISTA</a>
+
     <script>
-        const url = new URLSearchParams(window.location.search).get('link');
-        const video = document.getElementById('video');
-        if(Hls.isSupported()){
-            const hls = new Hls();
-            hls.loadSource(url);
-            hls.attachMedia(video);
-        } else if(video.canPlayType('application/vnd.apple.mpegurl')){
-            video.src = url;
+        const urlParams = new URLSearchParams(window.location.search);
+        const canalTag = urlParams.get('link'); // Pega o final do link (ex: cartoonito)
+
+        if (canalTag) {
+            const playerContainer = document.getElementById('player-container');
+            // Monta o iframe exatamente com o link que você mandou
+            playerContainer.innerHTML = `
+                <iframe name="Player" 
+                    src="https://redecanaistv.ooo/player3/ch.php?canal=${canalTag}" 
+                    frameborder="0" height="400" scrolling="no" width="640" 
+                    allow="encrypted-media" allowFullScreen>
+                </iframe>`;
         }
     </script>
 </body>
