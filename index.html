@@ -6,137 +6,53 @@
     <title>SolanoTV - Oficial</title>
     <style>
         body { background-color: #0d0d0d; color: white; font-family: sans-serif; margin: 0; padding: 0; }
-        header { background-color: #b70909; padding: 15px; text-align: center; font-weight: bold; font-size: 22px; letter-spacing: 2px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        
+        header { background-color: #b70909; padding: 15px; text-align: center; font-weight: bold; font-size: 22px; }
         .categorias { display: flex; justify-content: center; gap: 5px; padding: 15px; background: #1a1a1a; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; overflow-x: auto; }
-        .cat-btn { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: bold; white-space: nowrap; transition: 0.3s; }
+        .cat-btn { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; }
         .cat-btn.active { background: #b70909; }
-
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; }
-        .card { position: relative; background: #1a1a1a; border-radius: 4px; overflow: hidden; text-decoration: none; color: white; border: 1px solid #333; transition: transform 0.2s; }
-        .card img { width: 100%; height: 160px; object-fit: cover; display: block; }
-        
-        .info-top { position: absolute; top: 5px; width: 90%; display: flex; justify-content: space-between; left: 5%; font-size: 9px; font-weight: bold; z-index: 10; }
-        .tag-duracao { background: rgba(0, 0, 0, 0.7); padding: 2px 4px; border-radius: 2px; }
-        .tag-dub { background: #b70909; padding: 2px 4px; border-radius: 2px; }
-        .tag-hd { position: absolute; bottom: 35px; left: 5px; background: #b70909; font-size: 9px; padding: 2px 4px; border-radius: 2px; }
-        .card h3 { font-size: 10px; padding: 8px 5px; margin: 0; text-align: center; background: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        #painel-adm { background: #1a1a1a; padding: 20px; border-radius: 10px; margin: 20px; border: 2px dashed #b70909; display: none; }
-        .adm-trigger { opacity: 0.05; padding: 20px; width: 100%; background: none; border: none; color: white; margin-top: 50px; }
-        input, select, textarea { width: 100%; margin-bottom: 10px; padding: 10px; background: #333; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; }
+        .card { background: #1a1a1a; border-radius: 8px; overflow: hidden; text-decoration: none; color: white; border: 1px solid #333; display: flex; flex-direction: column; }
+        .card img { width: 100%; height: 200px; object-fit: cover; background: #222; }
+        .card h3 { font-size: 13px; padding: 10px; margin: 0; text-align: center; flex-grow: 1; }
     </style>
 </head>
 <body>
 
-    <header>SOLANOTV</header>
+<header>SOLANOTV</header>
 
-    <div class="categorias">
-        <button class="cat-btn active" onclick="filtrar('anime', this)">ANIMES</button>
-        <button class="cat-btn" onclick="filtrar('filme', this)">FILMES</button>
-        <button class="cat-btn" onclick="filtrar('serie', this)">SÉRIES</button>
-        <button class="cat-btn" onclick="filtrar('tv', this)">CANAIS</button>
-    </div>
+<div class="categorias">
+    <button class="cat-btn active" onclick="filtrar('tv', this)">CANAIS</button>
+    <button class="cat-btn" onclick="filtrar('filme', this)">FILMES</button>
+    <button class="cat-btn" onclick="filtrar('serie', this)">SÉRIES</button>
+    <button class="cat-btn" onclick="filtrar('anime', this)">ANIMES</button>
+</div>
 
-    <div class="grid" id="lista-conteudo">
-        
-        <a href="detalhes.html?nome=One Piece&capa=https://p2.trrsf.com/image/fget/cf/1200/1200/middle/images.terra.com/2023/08/29/1083424169-one-piece-anime.jpg&duracao=1100+ Eps&tipo=anime&eps=https://f1.vidsite.xyz/animes/One.Piece.Ep01.mp4" class="card" data-cat="anime">
-            <div class="info-top"><span class="tag-duracao">1100+ Eps</span><span class="tag-dub">DUB</span></div>
-            <img src="https://p2.trrsf.com/image/fget/cf/1200/1200/middle/images.terra.com/2023/08/29/1083424169-one-piece-anime.jpg">
-            <span class="tag-hd">HD</span>
-            <h3>One Piece</h3>
-        </a>
+<div class="grid" id="lista">
+    <a href="player_tv.html?nome=SBT&link=https://p3-sbt-atv.akamaized.net/hls/live/2111818/sbt-atv/master.m3u8" class="card" data-cat="tv">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/22/SBT_logo.svg">
+        <h3>SBT Ao Vivo</h3>
+    </a>
+    <a href="player_tv.html?nome=Canal de Filmes 24h&link=https://raw.githubusercontent.com/Tiptop684/Trilhos-IPTV/main/canais/acao.m3u8" class="card" data-cat="tv">
+        <img src="https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=500">
+        <h3>Cine Ação 24h</h3>
+    </a>
 
-        <a href="detalhes.html?nome=Solo Leveling&capa=https://static.tvtropes.org/pmwiki/pub/images/solo_leveling_anime_key_visual.png&duracao=12 Eps&tipo=anime&eps=https://f1.vidsite.xyz/animes/Solo.Leveling.S01E01.mp4" class="card" data-cat="anime">
-            <div class="info-top"><span class="tag-duracao">12 Eps</span><span class="tag-dub">DUB</span></div>
-            <img src="https://static.tvtropes.org/pmwiki/pub/images/solo_leveling_anime_key_visual.png">
-            <span class="tag-hd">4K</span>
-            <h3>Solo Leveling</h3>
-        </a>
+    <a href="detalhes.html?nome=Deadpool e Wolverine&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/7vKxl9I4DksS8B0lJpXf98Y0BvN.jpg&duracao=2024&tipo=filme&eps=https://f1.vidsite.xyz/movies/Deadpool.e.Wolverine.2024.1080p.Dual.Audio.mp4" class="card" data-cat="filme">
+        <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/7vKxl9I4DksS8B0lJpXf98Y0BvN.jpg">
+        <h3>Deadpool & Wolverine</h3>
+    </a>
+</div>
 
-        <a href="detalhes.html?nome=Deadpool e Wolverine&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/7vKxl9I4DksS8B0lJpXf98Y0BvN.jpg&duracao=2024&tipo=filme&eps=https://f1.vidsite.xyz/movies/Deadpool.e.Wolverine.2024.1080p.Dual.Audio.mp4" class="card" data-cat="filme">
-            <div class="info-top"><span class="tag-duracao">Filme</span><span class="tag-dub">DUB</span></div>
-            <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/7vKxl9I4DksS8B0lJpXf98Y0BvN.jpg">
-            <span class="tag-hd">4K</span>
-            <h3>Deadpool & Wolverine</h3>
-        </a>
-
-        <a href="detalhes.html?nome=Divertida Mente 2&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/9u99COYpWIs7L6oEN9pS6YmC8Yf.jpg&duracao=2024&tipo=filme&eps=https://f1.vidsite.xyz/movies/Divertida.Mente.2.2024.1080p.Dual.Audio.mp4" class="card" data-cat="filme">
-            <div class="info-top"><span class="tag-duracao">Filme</span><span class="tag-dub">DUB</span></div>
-            <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/9u99COYpWIs7L6oEN9pS6YmC8Yf.jpg">
-            <span class="tag-hd">HD</span>
-            <h3>Divertida Mente 2</h3>
-        </a>
-
-        <a href="detalhes.html?nome=The Boys&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/mY7p25jRYLZqIcyWo006qXoQvG6.jpg&duracao=4 Temps&tipo=serie&eps=https://f1.vidsite.xyz/series/The.Boys.S01E01.mp4" class="card" data-cat="serie">
-            <div class="info-top"><span class="tag-duracao">Série</span><span class="tag-dub">DUB</span></div>
-            <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/mY7p25jRYLZqIcyWo006qXoQvG6.jpg">
-            <span class="tag-hd">HD</span>
-            <h3>The Boys</h3>
-        </a>
-
-        <a href="player_tv.html?nome=Canal Combate&link=https://raw.githubusercontent.com/Tiptop684/Trilhos-IPTV/main/canais/combate.m3u8" class="card" data-cat="tv">
-            <div class="info-top"><span class="tag-dub" style="background:#b70909">UFC</span></div>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Combate_logo.png" style="object-fit:contain; background:#fff; padding:10px;">
-            <span class="tag-hd">AO VIVO</span>
-            <h3>Canal Combate</h3>
-        </a>
-
-    </div>
-
-    <button class="adm-trigger" onclick="abrirPainel()">ACESSO ADM</button>
-
-    <div id="painel-adm">
-        <h3>Adicionar Novo Conteúdo</h3>
-        <select id="adm-tipo">
-            <option value="anime">ANIME</option>
-            <option value="filme">FILME</option>
-            <option value="serie">SÉRIE</option>
-            <option value="tv">CANAL</option>
-        </select>
-        <input type="text" id="adm-nome" placeholder="Nome">
-        <input type="text" id="adm-duracao" placeholder="Duração ou Eps">
-        <input type="text" id="adm-capa" placeholder="Link da Capa (JPG/PNG)">
-        <textarea id="adm-links" placeholder="Link do vídeo (para séries, separe eps por vírgula)" rows="3"></textarea>
-        <button style="background:#b70909; color:white; border:none; padding:15px; width:100%; font-weight:bold; cursor:pointer;" onclick="gerarCodigo()">GERAR CÓDIGO DO CARD</button>
-    </div>
-
-    <script>
-        // Inicia na categoria ANIMES
-        window.onload = function() {
-            filtrar('anime', document.querySelector('.cat-btn.active'));
-        };
-
-        function filtrar(cat, btn) {
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.querySelectorAll('.card').forEach(card => {
-                card.style.display = (card.getAttribute('data-cat') === cat) ? 'block' : 'none';
-            });
-        }
-
-        function abrirPainel() {
-            if (prompt("Senha ADM:") === "200223") {
-                document.getElementById('painel-adm').style.display = 'block';
-                window.scrollTo(0, document.body.scrollHeight);
-            }
-        }
-
-        function gerarCodigo() {
-            const tipo = document.getElementById('adm-tipo').value;
-            const nome = document.getElementById('adm-nome').value;
-            const duracao = document.getElementById('adm-duracao').value;
-            const capa = document.getElementById('adm-capa').value;
-            const links = document.getElementById('adm-links').value;
-            
-            let linkBase = (tipo === 'tv') ? 'player_tv.html' : 'detalhes.html';
-            let paramLink = (tipo === 'tv') ? 'link' : 'eps';
-
-            const codigo = `<a href="${linkBase}?nome=${nome}&capa=${capa}&duracao=${duracao}&tipo=${tipo}&${paramLink}=${links}" class="card" data-cat="${tipo}"><div class="info-top"><span class="tag-duracao">${duracao}</span><span class="tag-dub">DUB</span></div><img src="${capa}"><span class="tag-hd">HD</span><h3>${nome}</h3></a>`;
-            
-            alert("CARD GERADO!\n\nCopie o código abaixo e cole no seu HTML:\n\n" + codigo);
-            console.log(codigo);
-        }
-    </script>
+<script>
+    function filtrar(cat, btn) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.card').forEach(card => {
+            card.style.display = (card.getAttribute('data-cat') === cat) ? 'flex' : 'none';
+        });
+    }
+    // Inicia nos canais para testar o SBT
+    window.onload = () => filtrar('tv', document.querySelector('.cat-btn'));
+</script>
 </body>
 </html>
