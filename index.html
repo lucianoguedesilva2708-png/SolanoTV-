@@ -6,14 +6,16 @@
     <title>SolanoTV - Oficial</title>
     <style>
         body { background-color: #0d0d0d; color: white; font-family: sans-serif; margin: 0; padding: 0; }
-        header { background-color: #b70909; padding: 15px; text-align: center; font-weight: bold; font-size: 22px; }
-        .categorias { display: flex; justify-content: center; gap: 5px; padding: 15px; background: #1a1a1a; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; overflow-x: auto; }
-        .cat-btn { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        header { background-color: #b70909; padding: 15px; text-align: center; font-weight: bold; font-size: 22px; letter-spacing: 2px; }
+        .categorias { display: flex; justify-content: center; gap: 8px; padding: 15px; background: #1a1a1a; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; overflow-x: auto; }
+        .cat-btn { background: #333; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: bold; white-space: nowrap; transition: 0.3s; }
         .cat-btn.active { background: #b70909; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; }
-        .card { background: #1a1a1a; border-radius: 8px; overflow: hidden; text-decoration: none; color: white; border: 1px solid #333; display: flex; flex-direction: column; }
-        .card img { width: 100%; height: 200px; object-fit: cover; background: #222; }
-        .card h3 { font-size: 13px; padding: 10px; margin: 0; text-align: center; flex-grow: 1; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; }
+        .card { position: relative; background: #1a1a1a; border-radius: 4px; overflow: hidden; text-decoration: none; color: white; border: 1px solid #333; display: flex; flex-direction: column; }
+        .card img { width: 100%; height: 150px; object-fit: cover; display: block; background: #222; }
+        .info-top { position: absolute; top: 5px; width: 90%; display: flex; justify-content: space-between; left: 5%; font-size: 9px; font-weight: bold; z-index: 10; }
+        .tag-dub { background: #b70909; padding: 2px 4px; border-radius: 2px; }
+        .card h3 { font-size: 10px; padding: 8px 5px; margin: 0; text-align: center; background: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     </style>
 </head>
 <body>
@@ -21,38 +23,98 @@
 <header>SOLANOTV</header>
 
 <div class="categorias">
-    <button class="cat-btn active" onclick="filtrar('tv', this)">CANAIS</button>
-    <button class="cat-btn" onclick="filtrar('filme', this)">FILMES</button>
+    <button class="cat-btn" onclick="filtrar('tv', this)">CANAIS</button>
+    <button class="cat-btn active" onclick="filtrar('filme', this)">FILMES</button>
     <button class="cat-btn" onclick="filtrar('serie', this)">SÉRIES</button>
     <button class="cat-btn" onclick="filtrar('anime', this)">ANIMES</button>
 </div>
 
-<div class="grid" id="lista">
-    <a href="player_tv.html?nome=SBT&link=https://p3-sbt-atv.akamaized.net/hls/live/2111818/sbt-atv/master.m3u8" class="card" data-cat="tv">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/2/22/SBT_logo.svg">
-        <h3>SBT Ao Vivo</h3>
-    </a>
-    <a href="player_tv.html?nome=Canal de Filmes 24h&link=https://raw.githubusercontent.com/Tiptop684/Trilhos-IPTV/main/canais/acao.m3u8" class="card" data-cat="tv">
-        <img src="https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=500">
-        <h3>Cine Ação 24h</h3>
-    </a>
-
-    <a href="detalhes.html?nome=Deadpool e Wolverine&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/7vKxl9I4DksS8B0lJpXf98Y0BvN.jpg&duracao=2024&tipo=filme&eps=https://f1.vidsite.xyz/movies/Deadpool.e.Wolverine.2024.1080p.Dual.Audio.mp4" class="card" data-cat="filme">
+<div class="grid" id="lista-conteudo">
+    
+    <a href="detalhes.html?nome=Deadpool e Wolverine&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/7vKxl9I4DksS8B0lJpXf98Y0BvN.jpg&duracao=2024&tipo=filme&eps=https://embed.warezcdn.com/filme/tt1431045" class="card" data-cat="filme">
+        <div class="info-top"><span class="tag-dub">DUB</span></div>
         <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/7vKxl9I4DksS8B0lJpXf98Y0BvN.jpg">
         <h3>Deadpool & Wolverine</h3>
     </a>
+
+    <a href="detalhes.html?nome=Divertida Mente 2&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/9u97Dnq987u3u9qr1uubPbS6j7v.jpg&duracao=2024&tipo=filme&eps=https://embed.warezcdn.com/filme/tt22022452" class="card" data-cat="filme">
+        <div class="info-top"><span class="tag-dub">DUB</span></div>
+        <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/9u97Dnq987u3u9qr1uubPbS6j7v.jpg">
+        <h3>Divertida Mente 2</h3>
+    </a>
+
+    <a href="detalhes.html?nome=Planeta dos Macacos&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/pSshR3DIdK566Pr0R6Obe9pY8v.jpg&duracao=2024&tipo=filme&eps=https://embed.warezcdn.com/filme/tt11389872" class="card" data-cat="filme">
+        <div class="info-top"><span class="tag-dub">DUB</span></div>
+        <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/pSshR3DIdK566Pr0R6Obe9pY8v.jpg">
+        <h3>Planeta dos Macacos</h3>
+    </a>
+
+    <a href="detalhes.html?nome=Bad Boys: Até o Fim&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/6YVp8I69t2hFhU8789wDAnL6E8E.jpg&duracao=2024&tipo=filme&eps=https://embed.warezcdn.com/filme/tt12845692" class="card" data-cat="filme">
+        <div class="info-top"><span class="tag-dub">DUB</span></div>
+        <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/6YVp8I69t2hFhU8789wDAnL6E8E.jpg">
+        <h3>Bad Boys: Até o Fim</h3>
+    </a>
+
+    <a href="detalhes.html?nome=Meu Malvado Favorito 4&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/8I421vT2MvJ1Wq5y8H0r79u0H0S.jpg&duracao=2024&tipo=filme&eps=https://embed.warezcdn.com/filme/tt17051910" class="card" data-cat="filme">
+        <div class="info-top"><span class="tag-dub">DUB</span></div>
+        <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/8I421vT2MvJ1Wq5y8H0r79u0H0S.jpg">
+        <h3>Meu Malvado Favorito 4</h3>
+    </a>
+
+    <a href="detalhes.html?nome=Gladiador 2&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/mY9btY628Y2TfIobp7Lw673K3mB.jpg&duracao=2024&tipo=filme&eps=https://embed.warezcdn.com/filme/tt9660516" class="card" data-cat="filme">
+        <div class="info-top"><span class="tag-dub">DUB</span></div>
+        <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/mY9btY628Y2TfIobp7Lw673K3mB.jpg">
+        <h3>Gladiador 2</h3>
+    </a>
+
+    <a href="detalhes.html?nome=Sonic 3&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/mS98YfL60j678E0A9D2396T2YdY.jpg&duracao=2024&tipo=filme&eps=https://embed.warezcdn.com/filme/tt18259086" class="card" data-cat="filme">
+        <div class="info-top"><span class="tag-dub">DUB</span></div>
+        <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/mS98YfL60j678E0A9D2396T2YdY.jpg">
+        <h3>Sonic 3</h3>
+    </a>
+
+    <a href="detalhes.html?nome=Moana 2&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/m9fI5q7f9E58uXv2X6y79X8uXv2.jpg&duracao=2024&tipo=filme&eps=https://embed.warezcdn.com/filme/tt31185934" class="card" data-cat="filme">
+        <div class="info-top"><span class="tag-dub">DUB</span></div>
+        <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/m9fI5q7f9E58uXv2X6y79X8uXv2.jpg">
+        <h3>Moana 2</h3>
+    </a>
+
+    <a href="detalhes.html?nome=Alien: Romulus&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/b33mAd7vYrSNA7Pbscy9v9vY9v.jpg&duracao=2024&tipo=filme&eps=https://embed.warezcdn.com/filme/tt18412256" class="card" data-cat="filme">
+        <div class="info-top"><span class="tag-dub">DUB</span></div>
+        <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/b33mAd7vYrSNA7Pbscy9v9vY9v.jpg">
+        <h3>Alien: Romulus</h3>
+    </a>
+
+    <a href="detalhes.html?nome=Terrifier 3&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/6b382P2v7W9Y5V6Xy7uXvV7yXv.jpg&duracao=2024&tipo=filme&eps=https://embed.warezcdn.com/filme/tt27951658" class="card" data-cat="filme">
+        <div class="info-top"><span class="tag-dub">DUB</span></div>
+        <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/6b382P2v7W9Y5V6Xy7uXvV7yXv.jpg">
+        <h3>Terrifier 3</h3>
+    </a>
+
+    <a href="detalhes.html?nome=O Poço 2&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/8I421vT2MvJ1Wq5y8H0r79u0H0S.jpg&duracao=2024&tipo=filme&eps=https://embed.warezcdn.com/filme/tt27715006" class="card" data-cat="filme">
+        <div class="info-top"><span class="tag-dub">DUB</span></div>
+        <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/8I421vT2MvJ1Wq5y8H0r79u0H0S.jpg">
+        <h3>O Poço 2</h3>
+    </a>
+
+    <a href="detalhes.html?nome=Godzilla e Kong&capa=https://www.themoviedb.org/t/p/w600_and_h900_bestv2/pSshR3DIdK566Pr0R6Obe9pY8v.jpg&duracao=2024&tipo=filme&eps=https://embed.warezcdn.com/filme/tt21491759" class="card" data-cat="filme">
+        <div class="info-top"><span class="tag-dub">DUB</span></div>
+        <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/pSshR3DIdK566Pr0R6Obe9pY8v.jpg">
+        <h3>Godzilla e Kong</h3>
+    </a>
+
 </div>
 
 <script>
     function filtrar(cat, btn) {
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        if(btn) btn.classList.add('active');
         document.querySelectorAll('.card').forEach(card => {
             card.style.display = (card.getAttribute('data-cat') === cat) ? 'flex' : 'none';
         });
     }
-    // Inicia nos canais para testar o SBT
-    window.onload = () => filtrar('tv', document.querySelector('.cat-btn'));
+    // Inicia na categoria Filmes por padrão
+    window.onload = () => filtrar('filme', document.querySelector('.cat-btn.active'));
 </script>
 </body>
 </html>
