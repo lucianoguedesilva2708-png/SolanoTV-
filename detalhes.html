@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -6,11 +6,12 @@
     <title>SolanoTV - Detalhes</title>
     <style>
         body { background: #0d0d0d; color: white; font-family: sans-serif; margin: 0; text-align: center; }
-        .capa { width: 150px; margin-top: 20px; border-radius: 8px; border: 2px solid #b70909; }
+        .capa { width: 180px; margin-top: 25px; border-radius: 8px; border: 2px solid #b70909; box-shadow: 0 0 15px rgba(183, 9, 9, 0.4); }
         #player-area { width: 100%; aspect-ratio: 16/9; margin-top: 20px; background: #000; display: none; }
         iframe { width: 100%; height: 100%; border: none; }
-        .controles { padding: 20px; }
-        .btn-play { background: #b70909; color: white; border: none; padding: 15px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .controles { padding: 30px; }
+        .btn-play { background: #b70909; color: white; border: none; padding: 15px 40px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .btn-voltar { display: block; margin-top: 20px; color: #aaa; text-decoration: none; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -20,11 +21,12 @@
     <div id="player-area"></div>
 
     <div class="controles">
-        <button class="btn-play" id="btn-assistir">ASSISTIR AGORA</button><br><br>
-        <a href="index.html" style="color: #aaa; text-decoration: none;">❮ Voltar para o início</a>
+        <button class="btn-play" id="btn-assistir">ASSISTIR AGORA</button>
+        <a href="index.html" class="btn-voltar">❮ Voltar para o início</a>
     </div>
 
     <script>
+        // Pega os dados que o index.html enviou pelo link
         const params = new URLSearchParams(window.location.search);
         const nome = params.get('nome');
         const capa = params.get('capa');
@@ -33,12 +35,13 @@
         document.getElementById('titulo-nome').innerText = nome;
         document.getElementById('img-capa').src = capa;
 
+        // Quando clica no botão, a janela do vídeo abre
         document.getElementById('btn-assistir').onclick = function() {
             const area = document.getElementById('player-area');
             area.style.display = 'block';
-            area.innerHTML = `<iframe src="${link}" allowfullscreen></iframe>`;
-            window.scrollTo(0, area.offsetTop);
+            area.innerHTML = `<iframe src="${link}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+            window.scrollTo({ top: area.offsetTop - 20, behavior: 'smooth' });
         };
     </script>
 </body>
-</html>        
+</html>
