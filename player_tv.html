@@ -3,44 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV - Live</title>
+    <title>SolanoTV - Player</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        .video-box { width: 100%; max-width: 900px; aspect-ratio: 16/9; background: #111; position: relative; }
-        video { width: 100%; height: 100%; }
-        .controles { padding: 20px; text-align: center; }
-        h2 { color: #b70909; margin: 0 0 10px; font-size: 18px; }
-        .btn-voltar { background: #b70909; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; }
+        body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .player-container { width: 100%; max-width: 900px; aspect-ratio: 16/9; background: #111; border-top: 2px solid #b70909; border-bottom: 2px solid #b70909; }
+        video { width: 100%; height: 100%; outline: none; }
+        .info { padding: 20px; text-align: center; }
+        .btn-voltar { background: #b70909; color: white; text-decoration: none; padding: 12px 25px; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 10px; }
+        #status { color: #555; font-size: 12px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="video-box">
+    <div class="player-container">
         <video id="video" controls autoplay playsinline></video>
     </div>
 
-    <div class="controles">
-        <h2 id="nome-canal">Carregando...</h2>
-        <a href="index.html" class="btn-voltar">VOLTAR À GRADE</a>
+    <div class="info">
+        <h2 id="canal-titulo">Carregando...</h2>
+        <a href="index.html" class="btn-voltar">VOLTAR À LISTA</a>
+        <div id="status">Iniciando fluxo...</div>
     </div>
 
     <script>
         const params = new URLSearchParams(window.location.search);
         const link = params.get('link');
         const nome = params.get('nome');
-
-        document.getElementById('nome-canal').innerText = "🔴 AO VIVO: " + nome;
-
         const video = document.getElementById('video');
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(link);
-            hls.attachMedia(video);
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = link;
+        const status = document.getElementById('status');
+
+        document.getElementById('canal-titulo').innerText = "🔴 AO VIVO: " + nome;
+
+        if (!link) {
+            status.innerText = "Erro: Link não encontrado.";
+        } else {
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(link);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    status.innerText = "Sinal recebido! Reproduzindo...";
+                    video.play();
+                });
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        status.innerText = "Erro: Este link de canal expirou ou está fora do ar.";
+                        console.error("Erro fatal:", data);
+                    }
+                });
+            } 
+            // Para Safari (iPhone) que não usa HLS.js
+            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = link;
+                video.addEventListener('loadedmetadata', () => {
+                    video.play();
+                });
+            }
         }
     </script>
 </body>
 </html>
-
