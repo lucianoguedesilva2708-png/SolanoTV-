@@ -3,31 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV - Player TV</title>
+    <title>SolanoTV - Player Canais</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        body { background: #000; color: white; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .nav-top { background: #b70909; padding: 10px; text-align: center; font-weight: bold; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
-        .btn-voltar { color: white; text-decoration: none; font-size: 12px; background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 4px; }
-        .iframe-container { flex-grow: 1; width: 100%; height: 100%; }
-        iframe { width: 100%; height: 100%; border: none; }
+        body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .video-container { width: 100%; max-width: 900px; aspect-ratio: 16/9; background: #000; position: relative; }
+        video { width: 100%; height: 100%; outline: none; }
+        .voltar { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; font-size: 12px; z-index: 10; border: 1px solid #333; }
+        h2 { font-size: 16px; margin-top: 15px; color: #b70909; }
     </style>
 </head>
 <body>
-    <div class="nav-top">
-        <span id="nome-canal">Canal</span>
-        <a href="index.html" class="btn-voltar">❮ SAIR</a>
+
+    <a href="index.html" class="voltar">❮ VOLTAR</a>
+
+    <div class="video-container">
+        <video id="video" controls autoplay playsinline></video>
     </div>
-    <div class="iframe-container">
-        <iframe id="player-frame" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
-    </div>
+
+    <h2 id="canal-titulo">Carregando Canal...</h2>
+
     <script>
         const params = new URLSearchParams(window.location.search);
-        const link = params.get('link');
-        const nome = params.get('nome');
+        const nomeCanal = params.get('nome');
+        let urlCanal = params.get('link');
 
-        if(link) {
-            document.getElementById('player-frame').src = link;
-            document.getElementById('nome-canal').innerText = "ASSISTINDO: " + nome;
+        // Limpar o link caso venha com o zapstream na frente
+        if (urlCanal.includes('url=')) {
+            urlCanal = urlCanal.split('url=')[1];
+        }
+
+        document.getElementById('canal-titulo').innerText = nomeCanal || "Canal ao Vivo";
+
+        const video = document.getElementById('video');
+
+        if (urlCanal) {
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(urlCanal);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    video.play();
+                });
+            } 
+            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                // Suporte nativo para Safari (iOS)
+                video.src = urlCanal;
+                video.addEventListener('loadedmetadata', function() {
+                    video.play();
+                });
+            }
+        } else {
+            alert("Erro: Link do canal não encontrado.");
         }
     </script>
 </body>
