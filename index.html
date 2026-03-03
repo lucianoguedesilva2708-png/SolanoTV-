@@ -6,16 +6,14 @@
     <title>SolanoTV - Oficial</title>
     <style>
         body { background-color: #0d0d0d; color: white; font-family: sans-serif; margin: 0; padding: 0; }
-        header { background-color: #b70909; padding: 15px; text-align: center; font-weight: bold; font-size: 22px; letter-spacing: 2px; }
+        header { background-color: #b70909; padding: 15px; text-align: center; font-weight: bold; font-size: 22px; }
         .categorias { display: flex; justify-content: center; gap: 8px; padding: 15px; background: #1a1a1a; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; overflow-x: auto; }
-        .cat-btn { background: #333; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: bold; white-space: nowrap; transition: 0.3s; }
+        .cat-btn { background: #333; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: bold; }
         .cat-btn.active { background: #b70909; }
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; }
-        .card { position: relative; background: #1a1a1a; border-radius: 4px; overflow: hidden; text-decoration: none; color: white; border: 1px solid #333; display: flex; flex-direction: column; }
-        .card img { width: 100%; height: 150px; object-fit: cover; display: block; background: #222; }
-        .info-top { position: absolute; top: 5px; width: 90%; display: flex; justify-content: space-between; left: 5%; font-size: 9px; font-weight: bold; z-index: 10; }
-        .tag-dub { background: #b70909; padding: 2px 4px; border-radius: 2px; }
-        .card h3 { font-size: 10px; padding: 8px 5px; margin: 0; text-align: center; background: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card { background: #1a1a1a; border-radius: 4px; overflow: hidden; text-decoration: none; color: white; border: 1px solid #333; display: flex; flex-direction: column; }
+        .card img { width: 100%; height: 150px; object-fit: cover; background: #222; }
+        .card h3 { font-size: 10px; padding: 8px 5px; margin: 0; text-align: center; }
     </style>
 </head>
 <body>
@@ -24,45 +22,28 @@
 
 <div class="categorias">
     <button class="cat-btn" onclick="filtrar('tv', this)">CANAIS</button>
-    <button class="cat-btn active" onclick="filtrar('filme', this)">FILMES</button>
     <button class="cat-btn" onclick="filtrar('serie', this)">SÉRIES</button>
-    <button class="cat-btn" onclick="filtrar('anime', this)">ANIMES</button>
+    <button class="cat-btn active" onclick="filtrar('anime', this)">ANIMES</button>
 </div>
 
 <div class="grid" id="lista-conteudo">
     
-    <a href="detalhes.html?nome=Deadpool e Wolverine&capa=https://image.tmdb.org/t/p/w500/7vKxl9I4DksS8B0lJpXf98Y0BvN.jpg&eps=https://redecanaistv.ooo/player3/filme.php?nome=deadpool-and-wolverine" class="card" data-cat="filme">
-        <div class="info-top"><span class="tag-dub">DUB</span></div>
-        <img src="https://image.tmdb.org/t/p/w500/7vKxl9I4DksS8B0lJpXf98Y0BvN.jpg">
-        <h3>Deadpool & Wolverine</h3>
-    </a>
-
-    <a href="detalhes.html?nome=Divertida Mente 2&capa=https://image.tmdb.org/t/p/w500/9u97Dnq987u3u9qr1uubPbS6j7v.jpg&eps=https://redecanaistv.ooo/player3/filme.php?nome=divertida-mente-2" class="card" data-cat="filme">
-        <div class="info-top"><span class="tag-dub">DUB</span></div>
-        <img src="https://image.tmdb.org/t/p/w500/9u97Dnq987u3u9qr1uubPbS6j7v.jpg">
-        <h3>Divertida Mente 2</h3>
-    </a>
-
-    <a href="detalhes.html?nome=Origem (From)&capa=https://image.tmdb.org/t/p/w500/u6Y7pY6H8vMh6y7E0U8v8m2X3Y7.jpg&eps=https://redecanaistv.ooo/player3/serie.php?nome=origem" class="card" data-cat="serie">
-        <div class="info-top"><span class="tag-dub">DUB</span></div>
-        <img src="https://image.tmdb.org/t/p/w500/u6Y7pY6H8vMh6y7E0U8v8m2X3Y7.jpg">
-        <h3>Origem (From)</h3>
-    </a>
-
     <a href="detalhes.html?nome=Jigokuraku&capa=https://image.tmdb.org/t/p/w500/7vKxl9I4DksS8B0lJpXf98Y0BvN.jpg&eps=https://redecanaistv.ooo/player3/anime.php?nome=jigokuraku" class="card" data-cat="anime">
-        <div class="info-top"><span class="tag-dub">DUB</span></div>
         <img src="https://image.tmdb.org/t/p/w500/7vKxl9I4DksS8B0lJpXf98Y0BvN.jpg">
         <h3>Jigokuraku</h3>
     </a>
 
     <a href="detalhes.html?nome=Vigilante&capa=https://m.media-amazon.com/images/M/MV5BMGU5MTk1YjItY2JmNy00N2Y4LThhNjAtYjU5YmU1YjljNWM2XkEyXkFqcGdeQXVyMTEzMTI1Mjk3._V1_.jpg&eps=https://redecanaistv.ooo/player3/serie.php?nome=vigilante" class="card" data-cat="anime">
-        <div class="info-top"><span class="tag-dub">DUB</span></div>
         <img src="https://m.media-amazon.com/images/M/MV5BMGU5MTk1YjItY2JmNy00N2Y4LThhNjAtYjU5YmU1YjljNWM2XkEyXkFqcGdeQXVyMTEzMTI1Mjk3._V1_.jpg">
         <h3>Vigilante</h3>
     </a>
 
+    <a href="detalhes.html?nome=Origem (From)&capa=https://image.tmdb.org/t/p/w500/u6Y7pY6H8vMh6y7E0U8v8m2X3Y7.jpg&eps=https://redecanaistv.ooo/player3/serie.php?nome=origem" class="card" data-cat="serie">
+        <img src="https://image.tmdb.org/t/p/w500/u6Y7pY6H8vMh6y7E0U8v8m2X3Y7.jpg">
+        <h3>Origem (From)</h3>
+    </a>
+
     <a href="player_tv.html?nome=Cartoonito&link=https://redecanaistv.ooo/player3/ch.php?canal=cartoonito" class="card" data-cat="tv">
-        <div class="info-top"><span class="tag-dub" style="background:green">ON</span></div>
         <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Cartoonito_logo.svg" style="background:white; padding:10px; object-fit:contain;">
         <h3>Cartoonito</h3>
     </a>
@@ -77,8 +58,7 @@
             card.style.display = (card.getAttribute('data-cat') === cat) ? 'flex' : 'none';
         });
     }
-    // Começa mostrando animes para você testar logo os seus favoritos
-    window.onload = () => filtrar('anime', document.querySelector('.cat-btn[onclick*="anime"]'));
+    window.onload = () => filtrar('anime', document.querySelector('.cat-btn.active'));
 </script>
 </body>
 </html>
