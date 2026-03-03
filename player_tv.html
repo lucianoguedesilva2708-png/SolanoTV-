@@ -3,63 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV - Player</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>SolanoTV - Player TV</title>
     <style>
-        body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .player-container { width: 100%; max-width: 900px; aspect-ratio: 16/9; background: #111; border-top: 2px solid #b70909; border-bottom: 2px solid #b70909; }
-        video { width: 100%; height: 100%; outline: none; }
-        .info { padding: 20px; text-align: center; }
-        .btn-voltar { background: #b70909; color: white; text-decoration: none; padding: 12px 25px; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 10px; }
-        #status { color: #555; font-size: 12px; margin-top: 10px; }
+        body { background: #000; color: white; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .nav { background: #b70909; padding: 10px; text-align: center; }
+        .btn-voltar { color: white; text-decoration: none; font-weight: bold; background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 4px; }
+        .iframe-container { flex-grow: 1; width: 100%; height: 100%; }
+        iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
-
-    <div class="player-container">
-        <video id="video" controls autoplay playsinline></video>
+    <div class="nav">
+        <span id="nome-exibicao">Carregando...</span><br>
+        <a href="index.html" class="btn-voltar">❮ VOLTAR</a>
     </div>
-
-    <div class="info">
-        <h2 id="canal-titulo">Carregando...</h2>
-        <a href="index.html" class="btn-voltar">VOLTAR À LISTA</a>
-        <div id="status">Iniciando fluxo...</div>
+    <div class="iframe-container">
+        <iframe id="player-frame" src="" allowfullscreen allow="encrypted-media"></iframe>
     </div>
-
     <script>
         const params = new URLSearchParams(window.location.search);
         const link = params.get('link');
         const nome = params.get('nome');
-        const video = document.getElementById('video');
-        const status = document.getElementById('status');
-
-        document.getElementById('canal-titulo').innerText = "🔴 AO VIVO: " + nome;
-
-        if (!link) {
-            status.innerText = "Erro: Link não encontrado.";
-        } else {
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(link);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    status.innerText = "Sinal recebido! Reproduzindo...";
-                    video.play();
-                });
-                hls.on(Hls.Events.ERROR, (event, data) => {
-                    if (data.fatal) {
-                        status.innerText = "Erro: Este link de canal expirou ou está fora do ar.";
-                        console.error("Erro fatal:", data);
-                    }
-                });
-            } 
-            // Para Safari (iPhone) que não usa HLS.js
-            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = link;
-                video.addEventListener('loadedmetadata', () => {
-                    video.play();
-                });
-            }
+        if(link) {
+            document.getElementById('player-frame').src = link;
+            document.getElementById('nome-exibicao').innerText = nome;
         }
     </script>
 </body>
