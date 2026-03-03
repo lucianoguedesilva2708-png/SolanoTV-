@@ -6,28 +6,27 @@
     <title>Player TV - SolanoTV</title>
     <style>
         body { background: #000; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: white; font-family: sans-serif; }
-        .container { width: 100%; max-width: 800px; }
+        .container { width: 100%; max-width: 800px; padding: 10px; }
         iframe { width: 100%; height: 450px; border: none; }
-        .voltar { margin-top: 20px; text-decoration: none; color: #b70909; font-weight: bold; border: 1px solid #b70909; padding: 10px 20px; border-radius: 5px; }
+        .voltar { margin-top: 20px; text-decoration: none; color: white; background: #b70909; padding: 10px 20px; border-radius: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="container" id="player-container">
-        </div>
+    <div class="container" id="player-container"></div>
 
     <a href="index.html" class="voltar">⬅ VOLTAR PARA A LISTA</a>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const canalTag = urlParams.get('link'); // Pega o final do link (ex: cartoonito)
+        const canalID = urlParams.get('link'); 
 
-        if (canalTag) {
+        if (canalID) {
             const playerContainer = document.getElementById('player-container');
-            // Monta o iframe exatamente com o link que você mandou
+            // Aqui montamos o seu iframe oficial com o canal escolhido
             playerContainer.innerHTML = `
                 <iframe name="Player" 
-                    src="https://redecanaistv.ooo/player3/ch.php?canal=${canalTag}" 
+                    src="https://redecanaistv.ooo/player3/ch.php?canal=${canalID}" 
                     frameborder="0" height="400" scrolling="no" width="640" 
                     allow="encrypted-media" allowFullScreen>
                 </iframe>`;
