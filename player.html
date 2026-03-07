@@ -1,25 +1,70 @@
-<script>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolanoTV - Player PRO</title>
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <style>
+        body { background: #000; margin: 0; color: white; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; }
+        header { background: #b70909; padding: 10px; display: flex; align-items: center; gap: 10px; }
+        .btn-voltar { color: white; text-decoration: none; font-weight: bold; background: rgba(0,0,0,0.3); padding: 8px 15px; border-radius: 4px; font-size: 14px; }
+        #player-wrapper { flex-grow: 1; display: flex; align-items: center; justify-content: center; background: #000; }
+        #video-player { width: 100%; max-width: 1000px; aspect-ratio: 16/9; }
+        .info { padding: 15px; text-align: center; }
+        h2 { margin: 0; font-size: 16px; color: #eee; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="btn-voltar">⬅ VOLTAR</a>
+        <h2 id="titulo">Carregando...</h2>
+    </header>
+
+    <div id="player-wrapper">
+        <div id="video-player"></div>
+    </div>
+
+    <div class="info">
+        <small id="status-link">Verificando sinal...</small>
+    </div>
+
+    <script>
+        // 1. Pegar dados da URL
         const params = new URLSearchParams(window.location.search);
-        let videoUrl = params.get('link');
-        const nomeCanal = params.get('nome');
+        const urlOriginal = params.get('link');
+        const nome = params.get('nome');
+        const capa = params.get('capa');
 
-        document.getElementById('titulo-canal').innerText = nomeCanal;
+        document.getElementById('titulo').innerText = nome;
+        document.getElementById('status-link').innerText = "Link: " + urlOriginal;
 
-        // PROXY DE VÍDEO: Isso tenta burlar o bloqueio do servidor nos canais ao vivo
-        // Ele faz o pedido do vídeo parecer que vem de um servidor, não do seu navegador
-        const videoProxy = "https://api.codetabs.com/v1/proxy?quest=";
-        const finalUrl = videoUrl.includes('/live/') ? videoProxy + encodeURIComponent(videoUrl) : videoUrl;
-
-        var player = new Clappr.Player({
-            source: finalUrl,
-            parentId: "#player",
-            width: '100%',
-            height: '100%',
-            autoPlay: true,
-            hlsjsConfig: {
-                xhrSetup: function(xhr, url) {
-                    xhr.withCredentials = false; // Tenta evitar bloqueio de cookies
+        // 2. Configurar o Player
+        if (urlOriginal) {
+            var player = new Clappr.Player({
+                source: urlOriginal,
+                parentId: "#video-player",
+                width: '100%',
+                height: '100%',
+                autoPlay: true,
+                poster: capa,
+                preload: 'auto',
+                hlsjsConfig: {
+                    enableWorker: true,
+                },
+                events: {
+                    onReady: function() { console.log("Player Pronto"); },
+                    onError: function(e) { 
+                        console.log("Erro no Player:", e);
+                        document.getElementById('status-link').innerHTML = 
+                        "<span style='color:red;'>Erro ao reproduzir. Tente abrir no celular ou use a extensão CORS no PC.</span>";
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            document.getElementById('video-player').innerHTML = "Link inválido.";
+        }
     </script>
+</body>
+</html>
