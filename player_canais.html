@@ -3,90 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV - Live Player</title>
+    <title>SolanoTV - Live</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
-        .topo { background: #b70909; padding: 12px; display: flex; align-items: center; gap: 15px; font-weight: bold; z-index: 10; }
-        .voltar { color: white; text-decoration: none; border: 1.5px solid white; padding: 4px 12px; border-radius: 4px; font-size: 13px; }
-        #player-box { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        video { width: 100%; height: 100%; background: #000; }
-        .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #b70909; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; }
+        header { background: #b70909; padding: 15px; display: flex; align-items: center; gap: 10px; font-weight: bold; }
+        .btn-voltar { color: #fff; text-decoration: none; border: 1px solid #fff; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
+        #video-container { flex: 1; display: flex; align-items: center; justify-content: center; background: #000; position: relative; }
+        video { width: 100%; height: 100%; max-height: 100vh; }
+        #status-msg { position: absolute; bottom: 20px; font-size: 12px; color: yellow; text-align: center; width: 100%; }
     </style>
 </head>
 <body>
 
-<div class="topo">
-    <a href="index.html" class="voltar">⬅ VOLTAR</a>
-    <span id="txt-nome">Sincronizando Sinal...</span>
-</div>
+<header>
+    <a href="index.html" class="btn-voltar">⬅ VOLTAR</a>
+    <span id="nome-canal">Conectando...</span>
+</header>
 
-<div id="player-box">
-    <div id="loader" class="loading-overlay">
-        <div class="spinner"></div>
-        <p style="margin-top:15px; font-size:12px;">CONECTANDO AO P2PRO...</p>
-    </div>
-    <video id="video-canais" controls playsinline></video>
+<div id="video-container">
+    <video id="video" controls autoplay playsinline></video>
+    <div id="status-msg">Iniciando motor de busca...</div>
 </div>
 
 <script>
     const params = new URLSearchParams(window.location.search);
-    const rawUrl = params.get('link');
+    const link = params.get('link');
     const nome = params.get('nome');
-    
-    document.getElementById('txt-nome').innerText = nome || "Canal ao Vivo";
+    document.getElementById('nome-canal').innerText = nome;
 
-    // PROXY DE SEGURANÇA: Tenta burlar o bloqueio do servidor IPTV
-    // Esse proxy faz a requisição parecer que vem de um servidor, não do seu site.
-    const PROXY = "https://api.allorigins.win/raw?url=";
-    const finalUrl = PROXY + encodeURIComponent(rawUrl);
+    const video = document.getElementById('video');
+    const status = document.getElementById('status-msg');
 
-    const video = document.getElementById('video-canais');
-    const loader = document.getElementById('loader');
-
-    function iniciarPlayer() {
+    function iniciar() {
         if (Hls.isSupported()) {
             const hls = new Hls({
-                xhrSetup: function(xhr, url) {
-                    // Tenta remover os rastros do navegador para não ser bloqueado
-                    xhr.withCredentials = false;
-                }
+                // Configuração extrema para burlar bloqueios de buffer
+                enableWorker: true,
+                lowLatencyMode: true,
+                fragLoadingMaxRetry: 10,
+                manifestLoadingMaxRetry: 10
             });
 
-            hls.loadSource(finalUrl);
+            // Adicionando um pequeno "truque" no link para o servidor não cachear o bloqueio
+            const linkComTimestamp = link + (link.includes('?') ? '&' : '?') + 't=' + Date.now();
+            
+            hls.loadSource(linkComTimestamp);
             hls.attachMedia(video);
 
             hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                loader.style.display = 'none';
-                video.play().catch(() => {
-                    console.log("Play automático bloqueado.");
-                });
+                status.innerText = "Sinal estabilizado. Dê Play se não iniciar.";
+                video.play();
             });
 
             hls.on(Hls.Events.ERROR, function(event, data) {
                 if (data.fatal) {
-                    console.log("Tentando reconectar sem proxy...");
-                    hls.loadSource(rawUrl); // Tenta o link direto se o proxy falhar
+                    status.innerHTML = "ERRO: O servidor da lista bloqueou o navegador.<br>Tente no 4G do celular.";
                 }
             });
-
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            // Suporte direto para iPhone/Safari
-            video.src = rawUrl;
-            video.addEventListener('loadedmetadata', () => {
-                loader.style.display = 'none';
-                video.play();
-            });
+        } 
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = link;
+            video.play();
         }
     }
 
-    if (rawUrl) {
-        iniciarPlayer();
-    } else {
-        document.body.innerHTML = "<h1>Link inválido!</h1>";
-    }
+    if (link) { iniciar(); }
 </script>
 </body>
-</html>                    
+</html>
+
+
+
+
