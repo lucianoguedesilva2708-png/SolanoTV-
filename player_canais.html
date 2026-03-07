@@ -3,72 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV - Live Player</title>
-    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
-    <link href="https://unpkg.com/@videojs/themes@1.0.1/dist/city/index.css" rel="stylesheet">
-    
+    <title>SolanoTV - Live Streaming</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: sans-serif; }
-        .header-player { background: #b70909; padding: 10px; display: flex; align-items: center; justify-content: space-between; }
-        .voltar { color: white; text-decoration: none; font-weight: bold; font-size: 14px; border: 1px solid #fff; padding: 5px 10px; border-radius: 4px; }
-        .container { width: 100%; height: calc(100vh - 50px); display: flex; align-items: center; justify-content: center; }
-        
-        /* Ajuste do Player para ocupar a tela toda no Mobile */
-        .video-js { width: 100% !important; height: 100% !important; }
-        .vjs-big-play-centered .vjs-big-play-button { background-color: rgba(183, 9, 9, 0.8); border-radius: 50%; width: 2em; height: 2em; line-height: 2em; margin-top: -1em; margin-left: -1em; }
+        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
+        .nav { background: #b70909; padding: 10px; display: flex; align-items: center; justify-content: space-between; font-weight: bold; }
+        .btn-voltar { color: white; text-decoration: none; border: 1px solid white; padding: 5px 12px; border-radius: 4px; font-size: 13px; }
+        #video-container { width: 100vw; height: calc(100vh - 50px); display: flex; align-items: center; justify-content: center; background: #000; }
+        video { width: 100%; height: 100%; max-height: 100vh; background: #000; }
+        .erro-msg { position: absolute; top: 50%; text-align: center; width: 100%; color: #ff4444; display: none; }
     </style>
 </head>
 <body>
 
-    <div class="header-player">
-        <a href="index.html" class="voltar">⬅ VOLTAR</a>
-        <span id="nome-canal">Carregando Canal...</span>
-        <div style="width: 50px;"></div> </div>
+<div class="nav">
+    <a href="index.html" class="btn-voltar">⬅ VOLTAR</a>
+    <span id="nome-exibicao">CARREGANDO...</span>
+    <div style="width:50px"></div>
+</div>
 
-    <div class="container">
-        <video id="video-redetv" class="video-js vjs-theme-city vjs-big-play-centered" controls preload="auto" crossorigin="anonymous">
-            <p class="vjs-no-js">Para ver este vídeo, habilite o JavaScript ou use um navegador moderno.</p>
-        </video>
+<div id="video-container">
+    <video id="video" controls autoplay playsinline crossorigin="anonymous"></video>
+    <div id="erro" class="erro-msg">
+        SINAL INDISPONÍVEL NO NAVEGADOR<br>
+        <small>Tente recarregar ou use o navegador do Celular.</small>
     </div>
+</div>
 
-    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
-    <script src="https://unpkg.com/videojs-contrib-hls/dist/videojs-contrib-hls.js"></script>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const linkOriginal = params.get('link');
+    const nome = params.get('nome');
+    
+    document.getElementById('nome-exibicao').innerText = nome;
 
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        const link = params.get('link');
-        const nome = params.get('nome');
+    const video = document.getElementById('video');
+    const erroMsg = document.getElementById('erro');
 
-        document.getElementById('nome-canal').innerText = nome || "Canal ao Vivo";
+    // Função para iniciar o Play
+    function carregarVideo() {
+        if (Hls.isSupported()) {
+            const hls = new Hls({
+                debug: false,
+                enableWorker: true,
+                lowLatencyMode: true,
+                backBufferLength: 90
+            });
 
-        // Inicializa o Player
-        var player = videojs('video-redetv', {
-            autoplay: true,
-            fluid: true,
-            html5: {
-                vhs: { overrideNative: true },
-                nativeAudioTracks: false,
-                nativeVideoTracks: false
-            }
-        });
+            hls.loadSource(linkOriginal);
+            hls.attachMedia(video);
+            
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                video.play().catch(() => {
+                    console.log("Play automático bloqueado. Aguardando interação.");
+                });
+            });
 
-        // Carrega o sinal
-        if (link) {
-            player.src({
-                src: link,
-                type: 'application/x-mpegURL'
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    console.error("Erro fatal no HLS:", data.type);
+                    // Se falhar muito, mostra a mensagem de erro na tela
+                    erroMsg.style.display = 'block';
+                }
+            });
+
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // Suporte nativo para Safari (iPhone)
+            video.src = linkOriginal;
+            video.addEventListener('loadedmetadata', function() {
+                video.play();
             });
         }
+    }
 
-        // Tenta dar play automático (navegadores podem bloquear som de início)
-        player.ready(function() {
-            var promise = player.play();
-            if (promise !== undefined) {
-                promise.catch(error => {
-                    console.log("O play automático foi bloqueado, aguardando clique.");
-                });
-            }
-        });
-    </script>
+    if (linkOriginal) {
+        carregarVideo();
+    } else {
+        alert("Link não encontrado!");
+    }
+</script>
 </body>
 </html>
