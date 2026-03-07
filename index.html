@@ -8,49 +8,47 @@
         body { background: #0d0d0d; color: white; font-family: sans-serif; margin: 0; text-align: center; }
         header { background: #b70909; padding: 20px; font-weight: bold; font-size: 22px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; padding: 15px; }
-        .card { background: #1a1a1a; border-radius: 5px; border: 1px solid #333; text-decoration: none; color: white; overflow: hidden; }
-        .card img { width: 100%; height: 120px; object-fit: contain; background: #000; }
-        .card h3 { font-size: 10px; margin: 5px; height: 30px; overflow: hidden; }
+        .card { background: #1a1a1a; border-radius: 5px; border: 1px solid #333; text-decoration: none; color: white; overflow: hidden; height: 160px; display: flex; flex-direction: column; }
+        .card img { width: 100%; height: 110px; object-fit: contain; background: #000; padding: 5px; }
+        .card h3 { font-size: 10px; margin: 5px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
         #status { padding: 50px; color: #b70909; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <header>SOLANOTV PRO</header>
-<div id="status">INICIANDO CARREGAMENTO...</div>
+<div id="status">ESTABELECENDO CONEXÃO SEGURA...</div>
 <div class="grid" id="lista"></div>
 
 <script>
-    // Testaremos o AllOrigins que é mais estável para o GitHub
-    const rawUrl = "http://p2pro.fun/get.php?username=434188849&password=606908195&type=m3u_plus&output=hls";
-    const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(rawUrl);
+    const M3U_URL = "http://p2pro.fun/get.php?username=434188849&password=606908195&type=m3u_plus&output=hls";
+    
+    // Este proxy é mais potente para burlar bloqueios de IPTV
+    const PROXY = "https://api.codetabs.com/v1/proxy?quest=";
 
-    async function baixarLista() {
+    async function carregarLista() {
         const statusDiv = document.getElementById('status');
         const listaDiv = document.getElementById('lista');
 
         try {
-            const response = await fetch(proxyUrl);
-            if (!response.ok) throw new Error("Erro na rede");
-            
-            const texto = await response.text();
-            if (texto.length < 100) throw new Error("Lista vazia");
+            const response = await fetch(PROXY + encodeURIComponent(M3U_URL));
+            const data = await response.text();
 
-            const linhas = texto.split('\n');
-            let cardsHtml = "";
+            if (data.length < 100) throw new Error();
+
+            const linhas = data.split('\n');
+            let html = "";
             let cont = 0;
 
             for (let i = 0; i < linhas.length; i++) {
                 if (linhas[i].includes("#EXTINF:")) {
-                    const info = linhas[i];
-                    const url = linhas[i+1] ? linhas[i+1].trim() : "";
-                    
-                    if (url.startsWith("http")) {
-                        const nome = info.split(',').pop().trim();
-                        const logoMatch = info.match(/tvg-logo="([^"]+)"/);
-                        const logo = logoMatch ? logoMatch[1] : "https://via.placeholder.com/150?text=TV";
+                    const nome = linhas[i].split(',').pop().trim();
+                    const logoMatch = linhas[i].match(/tvg-logo="([^"]+)"/);
+                    const logo = logoMatch ? logoMatch[1] : "https://via.placeholder.com/150?text=TV";
+                    const url = linhas[i+1]?.trim();
 
-                        cardsHtml += `
+                    if (url && url.startsWith("http")) {
+                        html += `
                             <a href="player.html?nome=${encodeURIComponent(nome)}&link=${encodeURIComponent(url)}" class="card">
                                 <img src="${logo}" onerror="this.src='https://via.placeholder.com/150?text=SOLANO'">
                                 <h3>${nome}</h3>
@@ -59,19 +57,21 @@
                         cont++;
                     }
                 }
-                if (cont >= 150) break; // Limite para carregar rápido
+                if (cont >= 100) break; 
             }
 
             statusDiv.style.display = 'none';
-            listaDiv.innerHTML = cardsHtml;
+            listaDiv.innerHTML = html;
 
-        } catch (erro) {
-            statusDiv.innerHTML = "ERRO AO CARREGAR LISTA.<br>O servidor de IPTV bloqueou a conexão externa.<br><br>Dica: Tente usar um aplicativo de IPTV com seus dados para conferir se o login está ativo.";
-            console.error(erro);
+        } catch (e) {
+            statusDiv.innerHTML = "BLOQUEIO DE SEGURANÇA DETECTADO.<br>O servidor p2pro não permite acesso via navegador comum.<br><br>Para testar AGORA, abra este site no navegador do seu celular usando os DADOS MÓVEIS (4G/5G).";
         }
     }
 
-    baixarLista();
+    carregarLista();
 </script>
 </body>
-</html>            
+</html>
+
+    
+                    
