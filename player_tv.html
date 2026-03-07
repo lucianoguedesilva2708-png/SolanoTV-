@@ -3,41 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV - Streaming</title>
+    <title>SolanoTV - Player</title>
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
-        body { background: #000; margin: 0; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        .video-box { width: 100%; max-width: 1000px; border: 1px solid #b70909; box-shadow: 0 0 15px #b70909; }
-        .btn-voltar { background: #b70909; color: #fff; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 4px; margin-bottom: 20px; transition: 0.3s; }
+        body { background: #000; margin: 0; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .video-container { width: 100%; max-width: 1000px; border: 2px solid #b70909; }
+        .btn-voltar { background: #b70909; color: white; text-decoration: none; padding: 12px 25px; font-weight: bold; margin-bottom: 20px; border-radius: 30px; border: 1px solid transparent; transition: 0.3s; }
         .btn-voltar:hover { background: #fff; color: #b70909; }
-        h2 { font-size: 18px; margin-top: 15px; text-transform: uppercase; }
+        h2 { font-size: 18px; margin-top: 15px; text-align: center; padding: 0 10px; }
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="btn-voltar">VOLTAR PARA A GRADE</a>
+    <a href="index.html" class="btn-voltar">⬅ VOLTAR PARA A GRADE</a>
 
-    <div class="video-box">
-        <video id="player-solano" class="video-js vjs-big-play-centered vjs-16-9" controls preload="auto" data-setup='{}'></video>
+    <div class="video-container">
+        <video id="meu-player" class="video-js vjs-big-play-centered vjs-16-9" controls preload="auto" data-setup='{}'></video>
     </div>
 
-    <h2 id="display-nome">Carregando...</h2>
+    <h2 id="titulo-video">Carregando canal...</h2>
 
     <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const videoLink = urlParams.get('link');
-        const videoNome = urlParams.get('nome');
-        const videoCapa = urlParams.get('capa');
+        const params = new URLSearchParams(window.location.search);
+        const link = params.get('link');
+        const nome = params.get('nome');
+        const capa = params.get('capa');
 
-        document.getElementById('display-nome').innerText = videoNome;
+        document.getElementById('titulo-video').innerText = nome;
 
-        var player = videojs('player-solano');
+        var player = videojs('meu-player');
         
-        if (videoCapa) { player.poster(videoCapa); }
+        if (capa) { player.poster(capa); }
 
         player.src({
-            src: videoLink,
+            src: link,
             type: 'application/x-mpegURL'
         });
 
