@@ -3,117 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV PRO - Oficial</title>
+    <title>SolanoTV PRO - Ultra Fast</title>
     <style>
         :root { --vermelho: #b70909; --preto: #0d0d0d; --cinza: #1a1a1a; }
-        body { background: var(--preto); color: white; font-family: sans-serif; margin: 0; padding-bottom: 50px; }
+        body { background: var(--preto); color: white; font-family: sans-serif; margin: 0; overflow-x: hidden; }
         
-        header { background: var(--vermelho); padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        /* Header Fixo */
+        header { background: var(--vermelho); padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 1000; }
         
-        .busca-container { padding: 15px; background: var(--cinza); display: flex; flex-direction: column; gap: 10px; }
-        #txtBusca { padding: 12px; border-radius: 5px; border: none; background: #333; color: white; outline: none; border: 1px solid #444; }
+        /* Área de Busca e Filtros */
+        .controles { background: var(--cinza); padding: 10px; position: sticky; top: 54px; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
+        #txtBusca { padding: 12px; border-radius: 5px; border: 1px solid #444; background: #333; color: white; }
         
-        .categorias { display: flex; gap: 10px; overflow-x: auto; padding: 5px 0; }
-        .cat-btn { background: #333; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 13px; }
-        .cat-btn.active { background: var(--vermelho); }
+        .filtros { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; }
+        .filtros button { background: #333; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+        .filtros button.active { background: var(--vermelho); }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 10px; padding: 15px; }
+        /* Grid Otimizada */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; padding: 10px; }
         
-        .card { background: var(--cinza); border-radius: 6px; border: 1px solid #333; text-decoration: none; color: white; overflow: hidden; transition: 0.2s; position: relative; }
-        .card:hover { border-color: var(--vermelho); transform: translateY(-3px); }
-        .card img { width: 100%; height: 140px; object-fit: contain; background: #000; display: block; }
-        .card h3 { font-size: 10px; margin: 0; padding: 8px 5px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: rgba(0,0,0,0.8); }
-        
-        .tag { position: absolute; top: 5px; right: 5px; background: var(--vermelho); font-size: 8px; padding: 2px 5px; border-radius: 3px; font-weight: bold; }
+        /* Card Leve */
+        .card { background: var(--cinza); border-radius: 6px; text-decoration: none; color: white; overflow: hidden; height: 170px; border: 1px solid #222; }
+        .card img { width: 100%; height: 120px; object-fit: cover; background: #000; content-visibility: auto; }
+        .card h3 { font-size: 10px; margin: 0; padding: 8px 5px; text-align: center; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
-        #status { padding: 50px; color: var(--vermelho); font-weight: bold; text-align: center; }
+        #carregando { text-align: center; padding: 50px; color: var(--vermelho); }
     </style>
 </head>
 <body>
 
 <header>SOLANOTV PRO</header>
 
-<div class="busca-container">
-    <input type="text" id="txtBusca" placeholder="Pesquisar canal, filme ou série..." onkeyup="filtrar()">
-    <div class="categorias" id="botoes-filtros">
-        <button class="cat-btn active" onclick="setFiltro('todos', this)">TODOS</button>
-        <button class="cat-btn" onclick="setFiltro('TV', this)">CANAIS</button>
-        <button class="cat-btn" onclick="setFiltro('Movies', this)">FILMES</button>
-        <button class="cat-btn" onclick="setFiltro('Series', this)">SÉRIES</button>
+<div class="controles">
+    <input type="text" id="txtBusca" placeholder="Pesquisar..." oninput="aoDigitar()">
+    <div class="filtros">
+        <button class="btn-cat active" onclick="filtrarCat('todos', this)">TODOS</button>
+        <button class="btn-cat" onclick="filtrarCat('TV', this)">CANAIS</button>
+        <button class="btn-cat" onclick="filtrarCat('Movies', this)">FILMES</button>
+        <button class="btn-cat" onclick="filtrarCat('Series', this)">SÉRIES</button>
     </div>
 </div>
 
-<div id="status">CARREGANDO LISTA...</div>
-<div class="grid" id="lista"></div>
+<div id="carregando">Lendo lista...</div>
+<div class="grid" id="listaPrincipal"></div>
 
 <script>
     const M3U_URL = "http://p2pro.fun/get.php?username=434188849&password=606908195&type=m3u_plus&output=hls";
     const PROXY = "https://api.codetabs.com/v1/proxy?quest=";
     
-    let bancoDeDados = [];
-    let filtroAtual = "todos";
+    let baseTotal = [];
+    let categoriaAtual = 'todos';
+    let timeoutBusca;
 
-    async function baixarLista() {
+    async function iniciar() {
         try {
-            const response = await fetch(PROXY + encodeURIComponent(M3U_URL));
-            const data = await response.text();
-            const linhas = data.split('\n');
-            
-            for (let i = 0; i < linhas.length; i++) {
-                if (linhas[i].includes("#EXTINF:")) {
-                    const info = linhas[i];
-                    const url = linhas[i+1]?.trim();
-                    
-                    if (url && url.startsWith("http")) {
-                        const nome = info.split(',').pop().trim();
-                        const logoMatch = info.match(/tvg-logo="([^"]+)"/);
-                        const logo = logoMatch ? logoMatch[1] : "";
-                        
-                        // Detecta categoria pelo link ou tags
-                        let categoria = "TV";
-                        if (url.includes("/movie/")) categoria = "Movies";
-                        if (url.includes("/series/")) categoria = "Series";
-
-                        bancoDeDados.push({ nome, logo, url, categoria });
-                    }
-                }
-            }
-            document.getElementById('status').style.display = 'none';
-            renderizar(bancoDeDados);
+            const res = await fetch(PROXY + encodeURIComponent(M3U_URL));
+            const data = await res.text();
+            processarM3U(data);
         } catch (e) {
-            document.getElementById('status').innerText = "ERRO AO CARREGAR LISTA.";
+            document.getElementById('carregando').innerText = "Erro ao conectar.";
         }
     }
 
-    function renderizar(itens) {
-        const listaDiv = document.getElementById('lista');
-        listaDiv.innerHTML = itens.map(item => `
-            <a href="player.html?nome=${encodeURIComponent(item.nome)}&link=${encodeURIComponent(item.url)}&capa=${encodeURIComponent(item.logo)}" class="card">
-                <span class="tag">${item.categoria}</span>
-                <img src="${item.logo}" onerror="this.src='https://via.placeholder.com/150?text=SOLANO'">
-                <h3>${item.nome}</h3>
+    function processarM3U(texto) {
+        const linhas = texto.split('\n');
+        for (let i = 0; i < linhas.length; i++) {
+            if (linhas[i].includes("#EXTINF:")) {
+                const nome = linhas[i].split(',').pop().trim();
+                const logo = linhas[i].match(/tvg-logo="([^"]+)"/)?.[1] || "";
+                const url = linhas[i+1]?.trim();
+                
+                if (url && url.startsWith("http")) {
+                    let cat = "TV";
+                    if (url.includes("/movie/")) cat = "Movies";
+                    else if (url.includes("/series/")) cat = "Series";
+                    
+                    baseTotal.push({ n: nome, l: logo, u: url, c: cat });
+                }
+            }
+        }
+        document.getElementById('carregando').style.display = 'none';
+        render(baseTotal.slice(0, 100)); // Carrega só os primeiros 100 de cara
+    }
+
+    function render(lista) {
+        const grid = document.getElementById('listaPrincipal');
+        grid.innerHTML = lista.map(item => `
+            <a href="player.html?nome=${encodeURIComponent(item.n)}&link=${encodeURIComponent(item.u)}&capa=${encodeURIComponent(item.l)}" class="card">
+                <img src="${item.l}" loading="lazy" onerror="this.src='https://via.placeholder.com/150x120?text=Sem+Foto'">
+                <h3>${item.n}</h3>
             </a>
         `).join('');
     }
 
-    function setFiltro(cat, btn) {
-        filtroAtual = cat;
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        filtrar();
+    function aoDigitar() {
+        clearTimeout(timeoutBusca);
+        timeoutBusca = setTimeout(executarFiltro, 400); // Espera o usuário parar de digitar
     }
 
-    function filtrar() {
-        const termo = document.getElementById('txtBusca').value.toLowerCase();
-        const filtrados = bancoDeDados.filter(item => {
-            const matchesBusca = item.nome.toLowerCase().includes(termo);
-            const matchesCat = filtroAtual === "todos" || item.categoria === filtroAtual;
+    function filtrarCat(cat, btn) {
+        categoriaAtual = cat;
+        document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        executarFiltro();
+    }
+
+    function executarFiltro() {
+        const busca = document.getElementById('txtBusca').value.toLowerCase();
+        const resultado = baseTotal.filter(item => {
+            const matchesBusca = item.n.toLowerCase().includes(busca);
+            const matchesCat = categoriaAtual === 'todos' || item.c === categoriaAtual;
             return matchesBusca && matchesCat;
         });
-        renderizar(filtrados.slice(0, 300)); // Limite de 300 para performance
+        render(resultado.slice(0, 200)); // Mostra apenas os 200 mais relevantes
     }
 
-    baixarLista();
+    iniciar();
 </script>
 </body>
 </html>
