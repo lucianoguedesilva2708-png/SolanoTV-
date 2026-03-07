@@ -3,72 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV PRO</title>
+    <title>SolanoTV PRO - Oficial</title>
     <style>
-        body { background: #0d0d0d; color: white; font-family: sans-serif; margin: 0; text-align: center; }
-        header { background: #b70909; padding: 20px; font-weight: bold; font-size: 22px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; padding: 15px; }
-        .card { background: #1a1a1a; border-radius: 5px; border: 1px solid #333; text-decoration: none; color: white; overflow: hidden; height: 160px; display: flex; flex-direction: column; }
-        .card img { width: 100%; height: 110px; object-fit: contain; background: #000; padding: 5px; }
-        .card h3 { font-size: 10px; margin: 5px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
-        #status { padding: 50px; color: #b70909; font-weight: bold; }
+        :root { --vermelho: #b70909; --preto: #0d0d0d; --cinza: #1a1a1a; }
+        body { background: var(--preto); color: white; font-family: sans-serif; margin: 0; padding-bottom: 50px; }
+        
+        header { background: var(--vermelho); padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        
+        .busca-container { padding: 15px; background: var(--cinza); display: flex; flex-direction: column; gap: 10px; }
+        #txtBusca { padding: 12px; border-radius: 5px; border: none; background: #333; color: white; outline: none; border: 1px solid #444; }
+        
+        .categorias { display: flex; gap: 10px; overflow-x: auto; padding: 5px 0; }
+        .cat-btn { background: #333; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 13px; }
+        .cat-btn.active { background: var(--vermelho); }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 10px; padding: 15px; }
+        
+        .card { background: var(--cinza); border-radius: 6px; border: 1px solid #333; text-decoration: none; color: white; overflow: hidden; transition: 0.2s; position: relative; }
+        .card:hover { border-color: var(--vermelho); transform: translateY(-3px); }
+        .card img { width: 100%; height: 140px; object-fit: contain; background: #000; display: block; }
+        .card h3 { font-size: 10px; margin: 0; padding: 8px 5px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: rgba(0,0,0,0.8); }
+        
+        .tag { position: absolute; top: 5px; right: 5px; background: var(--vermelho); font-size: 8px; padding: 2px 5px; border-radius: 3px; font-weight: bold; }
+
+        #status { padding: 50px; color: var(--vermelho); font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
 
 <header>SOLANOTV PRO</header>
-<div id="status">ESTABELECENDO CONEXÃO SEGURA...</div>
+
+<div class="busca-container">
+    <input type="text" id="txtBusca" placeholder="Pesquisar canal, filme ou série..." onkeyup="filtrar()">
+    <div class="categorias" id="botoes-filtros">
+        <button class="cat-btn active" onclick="setFiltro('todos', this)">TODOS</button>
+        <button class="cat-btn" onclick="setFiltro('TV', this)">CANAIS</button>
+        <button class="cat-btn" onclick="setFiltro('Movies', this)">FILMES</button>
+        <button class="cat-btn" onclick="setFiltro('Series', this)">SÉRIES</button>
+    </div>
+</div>
+
+<div id="status">CARREGANDO LISTA...</div>
 <div class="grid" id="lista"></div>
 
 <script>
     const M3U_URL = "http://p2pro.fun/get.php?username=434188849&password=606908195&type=m3u_plus&output=hls";
-    
-    // Este proxy é mais potente para burlar bloqueios de IPTV
     const PROXY = "https://api.codetabs.com/v1/proxy?quest=";
+    
+    let bancoDeDados = [];
+    let filtroAtual = "todos";
 
-    async function carregarLista() {
-        const statusDiv = document.getElementById('status');
-        const listaDiv = document.getElementById('lista');
-
+    async function baixarLista() {
         try {
             const response = await fetch(PROXY + encodeURIComponent(M3U_URL));
             const data = await response.text();
-
-            if (data.length < 100) throw new Error();
-
             const linhas = data.split('\n');
-            let html = "";
-            let cont = 0;
-
+            
             for (let i = 0; i < linhas.length; i++) {
                 if (linhas[i].includes("#EXTINF:")) {
-                    const nome = linhas[i].split(',').pop().trim();
-                    const logoMatch = linhas[i].match(/tvg-logo="([^"]+)"/);
-                    const logo = logoMatch ? logoMatch[1] : "https://via.placeholder.com/150?text=TV";
+                    const info = linhas[i];
                     const url = linhas[i+1]?.trim();
-
+                    
                     if (url && url.startsWith("http")) {
-                        html += `
-                            <a href="player.html?nome=${encodeURIComponent(nome)}&link=${encodeURIComponent(url)}" class="card">
-                                <img src="${logo}" onerror="this.src='https://via.placeholder.com/150?text=SOLANO'">
-                                <h3>${nome}</h3>
-                            </a>
-                        `;
-                        cont++;
+                        const nome = info.split(',').pop().trim();
+                        const logoMatch = info.match(/tvg-logo="([^"]+)"/);
+                        const logo = logoMatch ? logoMatch[1] : "";
+                        
+                        // Detecta categoria pelo link ou tags
+                        let categoria = "TV";
+                        if (url.includes("/movie/")) categoria = "Movies";
+                        if (url.includes("/series/")) categoria = "Series";
+
+                        bancoDeDados.push({ nome, logo, url, categoria });
                     }
                 }
-                if (cont >= 100) break; 
             }
-
-            statusDiv.style.display = 'none';
-            listaDiv.innerHTML = html;
-
+            document.getElementById('status').style.display = 'none';
+            renderizar(bancoDeDados);
         } catch (e) {
-            statusDiv.innerHTML = "BLOQUEIO DE SEGURANÇA DETECTADO.<br>O servidor p2pro não permite acesso via navegador comum.<br><br>Para testar AGORA, abra este site no navegador do seu celular usando os DADOS MÓVEIS (4G/5G).";
+            document.getElementById('status').innerText = "ERRO AO CARREGAR LISTA.";
         }
     }
 
-    carregarLista();
+    function renderizar(itens) {
+        const listaDiv = document.getElementById('lista');
+        listaDiv.innerHTML = itens.map(item => `
+            <a href="player.html?nome=${encodeURIComponent(item.nome)}&link=${encodeURIComponent(item.url)}&capa=${encodeURIComponent(item.logo)}" class="card">
+                <span class="tag">${item.categoria}</span>
+                <img src="${item.logo}" onerror="this.src='https://via.placeholder.com/150?text=SOLANO'">
+                <h3>${item.nome}</h3>
+            </a>
+        `).join('');
+    }
+
+    function setFiltro(cat, btn) {
+        filtroAtual = cat;
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filtrar();
+    }
+
+    function filtrar() {
+        const termo = document.getElementById('txtBusca').value.toLowerCase();
+        const filtrados = bancoDeDados.filter(item => {
+            const matchesBusca = item.nome.toLowerCase().includes(termo);
+            const matchesCat = filtroAtual === "todos" || item.categoria === filtroAtual;
+            return matchesBusca && matchesCat;
+        });
+        renderizar(filtrados.slice(0, 300)); // Limite de 300 para performance
+    }
+
+    baixarLista();
 </script>
 </body>
 </html>
