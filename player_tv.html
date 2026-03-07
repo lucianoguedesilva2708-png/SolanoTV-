@@ -3,34 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player TV - SolanoTV</title>
+    <title>SolanoTV - Streaming</title>
+    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
-        body { background: #000; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: white; font-family: sans-serif; }
-        .container { width: 100%; max-width: 800px; padding: 10px; }
-        iframe { width: 100%; height: 450px; border: none; }
-        .voltar { margin-top: 20px; text-decoration: none; color: white; background: #b70909; padding: 10px 20px; border-radius: 5px; font-weight: bold; }
+        body { background: #000; margin: 0; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        .video-box { width: 100%; max-width: 1000px; border: 1px solid #b70909; box-shadow: 0 0 15px #b70909; }
+        .btn-voltar { background: #b70909; color: #fff; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 4px; margin-bottom: 20px; transition: 0.3s; }
+        .btn-voltar:hover { background: #fff; color: #b70909; }
+        h2 { font-size: 18px; margin-top: 15px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <div class="container" id="player-container"></div>
+    <a href="index.html" class="btn-voltar">VOLTAR PARA A GRADE</a>
 
-    <a href="index.html" class="voltar">⬅ VOLTAR PARA A LISTA</a>
+    <div class="video-box">
+        <video id="player-solano" class="video-js vjs-big-play-centered vjs-16-9" controls preload="auto" data-setup='{}'></video>
+    </div>
 
+    <h2 id="display-nome">Carregando...</h2>
+
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const canalID = urlParams.get('link'); 
+        const videoLink = urlParams.get('link');
+        const videoNome = urlParams.get('nome');
+        const videoCapa = urlParams.get('capa');
 
-        if (canalID) {
-            const playerContainer = document.getElementById('player-container');
-            // Aqui montamos o seu iframe oficial com o canal escolhido
-            playerContainer.innerHTML = `
-                <iframe name="Player" 
-                    src="https://redecanaistv.ooo/player3/ch.php?canal=${canalID}" 
-                    frameborder="0" height="400" scrolling="no" width="640" 
-                    allow="encrypted-media" allowFullScreen>
-                </iframe>`;
-        }
+        document.getElementById('display-nome').innerText = videoNome;
+
+        var player = videojs('player-solano');
+        
+        if (videoCapa) { player.poster(videoCapa); }
+
+        player.src({
+            src: videoLink,
+            type: 'application/x-mpegURL'
+        });
+
+        player.play();
     </script>
 </body>
 </html>
