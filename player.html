@@ -1,56 +1,25 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV - Player</title>
-    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-    <style>
-        body { background: #000; margin: 0; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        #player { width: 100%; max-width: 900px; aspect-ratio: 16/9; border: 1px solid #b70909; }
-        .btn-voltar { background: #b70909; color: white; text-decoration: none; padding: 12px 25px; font-weight: bold; border-radius: 5px; margin-bottom: 15px; display: inline-block; }
-        h2 { font-size: 16px; margin-top: 15px; color: #ccc; text-align: center; padding: 0 10px; }
-    </style>
-</head>
-<body>
-
-    <a href="index.html" class="btn-voltar">⬅ VOLTAR PARA A GRADE</a>
-
-    <div id="player"></div>
-
-    <h2 id="titulo-canal">Carregando...</h2>
-
-    <script>
+<script>
         const params = new URLSearchParams(window.location.search);
         let videoUrl = params.get('link');
         const nomeCanal = params.get('nome');
-        const capaCanal = params.get('capa');
 
         document.getElementById('titulo-canal').innerText = nomeCanal;
 
-        // Se o link for HTTP e o site HTTPS, tentamos trocar para HTTPS para ver se o servidor aceita
-        if (window.location.protocol === 'https:' && videoUrl.startsWith('http://')) {
-            // videoUrl = videoUrl.replace('http://', 'https://'); // Descomente se o player falhar
-        }
+        // PROXY DE VÍDEO: Isso tenta burlar o bloqueio do servidor nos canais ao vivo
+        // Ele faz o pedido do vídeo parecer que vem de um servidor, não do seu navegador
+        const videoProxy = "https://api.codetabs.com/v1/proxy?quest=";
+        const finalUrl = videoUrl.includes('/live/') ? videoProxy + encodeURIComponent(videoUrl) : videoUrl;
 
         var player = new Clappr.Player({
-            source: videoUrl,
+            source: finalUrl,
             parentId: "#player",
             width: '100%',
             height: '100%',
             autoPlay: true,
-            poster: capaCanal,
-            preload: 'auto',
-            playback: {
-                playInline: true,
-                hlsjsConfig: {
-                    enableWorker: true,
-                    lowLatencyMode: true,
+            hlsjsConfig: {
+                xhrSetup: function(xhr, url) {
+                    xhr.withCredentials = false; // Tenta evitar bloqueio de cookies
                 }
-            },
-            watermark: "https://via.placeholder.com/100x30/b70909/ffffff?text=SolanoTV", 
-            position: 'top-right',
+            }
         });
     </script>
-</body>
-</html>
