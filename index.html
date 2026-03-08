@@ -3,93 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solano TV - Catálogo Profissional</title>
+    <title>Solano TV - Oficial</title>
     <style>
-        :root {
-            --primary: #e50914; 
-            --bg-dark: #0a0a0a;
-            --card-bg: #141414;
-            --text: #ffffff;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text);
-            font-family: 'Segoe UI', Arial, sans-serif;
-            margin: 0; padding: 0;
-        }
-
-        header {
-            position: sticky; top: 0;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px 0; z-index: 1000;
-            border-bottom: 1px solid #222;
-        }
-
-        .logo {
-            text-align: center; font-size: 24px; font-weight: 900;
-            color: var(--primary); letter-spacing: 2px; margin-bottom: 15px;
-        }
-
-        /* Menu Principal (Filmes, Séries...) */
-        .tipo-menu {
-            display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
-        }
-
-        /* Barra de Subcategorias (Rolável) */
-        .categorias-bar {
-            display: flex; overflow-x: auto; white-space: nowrap;
-            padding: 10px 20px; gap: 10px; scrollbar-width: none;
-        }
-        .categorias-bar::-webkit-scrollbar { display: none; }
-
-        .btn {
-            background: #222; color: #fff; border: none;
-            padding: 8px 18px; border-radius: 20px;
-            cursor: pointer; font-size: 13px; font-weight: 600;
-            transition: 0.3s;
-        }
+        :root { --primary: #e50914; --bg: #0a0a0a; --card-bg: #141414; --text: #fff; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding: 0; }
+        header { position: sticky; top: 0; background: rgba(0,0,0,0.95); padding: 15px 0; z-index: 1000; border-bottom: 1px solid #222; text-align: center; }
+        .logo { font-size: 24px; font-weight: 900; color: var(--primary); letter-spacing: 2px; margin-bottom: 15px; }
+        .tipo-menu { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
+        .categorias-bar { display: flex; overflow-x: auto; padding: 10px; gap: 10px; scrollbar-width: none; }
+        .btn { background: #222; color: #fff; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600; white-space: nowrap; }
         .btn.active { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
-
-        .search-box {
-            display: flex; justify-content: center; padding: 10px;
-        }
-        #inputBusca {
-            width: 90%; max-width: 400px; padding: 10px 20px;
-            border-radius: 20px; border: 1px solid #333;
-            background: #1a1a1a; color: white; outline: none;
-        }
-
-        /* Grid */
-        .container {
-            display: grid; padding: 20px;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 15px; max-width: 1400px; margin: 0 auto;
-        }
-
-        .card {
-            background: var(--card-bg); border-radius: 8px;
-            overflow: hidden; transition: 0.3s; cursor: pointer;
-            border: 1px solid #222;
-        }
-        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .search-box { padding: 10px; display: flex; justify-content: center; }
+        #inputBusca { width: 90%; max-width: 400px; padding: 10px; border-radius: 20px; border: 1px solid #333; background: #1a1a1a; color: #fff; outline: none; }
+        .container { display: grid; padding: 20px; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
+        .card { background: var(--card-bg); border-radius: 8px; overflow: hidden; transition: 0.3s; cursor: pointer; border: 1px solid #222; position: relative; }
+        .card:hover { transform: scale(1.05); border-color: var(--primary); }
         .card img { width: 100%; height: 190px; object-fit: cover; }
         .card p { padding: 8px; font-size: 11px; margin: 0; text-align: center; }
-
-        /* Player */
-        #player-modal {
-            display: none; position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%; background: #000;
-            z-index: 2000; flex-direction: column;
-        }
-        .fechar-btn {
-            padding: 20px; color: white; font-size: 30px;
-            cursor: pointer; align-self: flex-end;
-        }
-        video { width: 100%; max-width: 1000px; margin: auto; }
-
-        #loading { text-align: center; padding: 50px; color: #666; }
+        #player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; flex-direction: column; }
+        .fechar-btn { padding: 20px; color: white; font-size: 40px; cursor: pointer; align-self: flex-end; background: none; border: none; }
+        video { width: 100%; max-width: 900px; margin: auto; border: 2px solid #333; }
+        #loading { text-align: center; padding: 50px; font-size: 18px; color: #888; }
     </style>
 </head>
 <body>
@@ -101,14 +35,13 @@
         <button class="btn" onclick="filtrarTipo('series', this)">SÉRIES</button>
         <button class="btn" onclick="filtrarTipo('animes', this)">ANIMES</button>
     </div>
-    <div id="sub-categorias" class="categorias-bar">
-        </div>
+    <div id="sub-categorias" class="categorias-bar"></div>
     <div class="search-box">
         <input type="text" id="inputBusca" placeholder="Buscar título..." onkeyup="buscar()">
     </div>
 </header>
 
-<div id="loading">Sincronizando catálogo...</div>
+<div id="loading">Sincronizando catálogo P2PRO... <br><small>Isso pode levar até 30 segundos na primeira vez.</small></div>
 <div id="main-grid" class="container"></div>
 
 <div id="player-modal">
@@ -119,51 +52,62 @@
 <script>
     const URL_LISTA = 'https://p2pro.fun/get.php?username=434188849&password=606908195&type=m3u_plus&output=hls';
     let TODOS_ITENS = [];
-    let TIPO_ATUAL = 'filmes';
 
     async function carregar() {
+        const loading = document.getElementById('loading');
         try {
-            let raw = localStorage.getItem('solano_cache_v3');
+            let raw = localStorage.getItem('solano_v4');
             if(!raw) {
-                const res = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(URL_LISTA));
-                raw = await res.text();
-                localStorage.setItem('solano_cache_v3', raw);
+                // Tentativa com o Proxy do Cors-anywhere ou AllOrigins
+                const proxy = "https://api.allorigins.win/raw?url=";
+                const response = await fetch(proxy + encodeURIComponent(URL_LISTA));
+                if (!response.ok) throw new Error('Erro na resposta do servidor');
+                raw = await response.text();
+                if(raw.length < 100) throw new Error('Lista muito curta ou inválida');
+                localStorage.setItem('solano_v4', raw);
             }
             TODOS_ITENS = processar(raw);
-            document.getElementById('loading').style.display = 'none';
+            loading.style.display = 'none';
             filtrarTipo('filmes', document.querySelector('.tipo-menu .btn'));
-        } catch (e) { document.getElementById('loading').innerText = "Erro ao carregar lista."; }
+        } catch (e) {
+            console.error(e);
+            loading.innerHTML = `<span style="color:red">Erro ao carregar lista!</span><br>
+            <button onclick="localStorage.clear(); location.reload();" style="margin-top:10px; padding:10px; border-radius:10px; border:none; background:white; cursor:pointer;">Tentar Novamente</button>`;
+        }
     }
 
     function processar(texto) {
         const itens = [];
         const linhas = texto.split('\n');
-        for (let i = 0; i < linhas.length; i++) {
-            if (linhas[i].startsWith('#EXTINF:')) {
-                const info = linhas[i];
-                const link = linhas[i+1]?.trim();
-                const grupo = info.match(/group-title="(.*?)"/)?.[1] || "Sem Categoria";
-                const nome = info.split(',')[1] || "Sem nome";
-                const capa = info.match(/tvg-logo="(.*?)"/)?.[1] || "";
+        let itemAtual = null;
 
-                if (grupo.toLowerCase().includes('canais')) continue;
+        for (let linha of linhas) {
+            linha = linha.trim();
+            if (linha.startsWith('#EXTINF:')) {
+                const grupo = linha.match(/group-title="(.*?)"/)?.[1] || "Sem Categoria";
+                const capa = linha.match(/tvg-logo="(.*?)"/)?.[1] || "";
+                const nome = linha.split(',')[1] || "Sem nome";
+                
+                // Filtra TV ao Vivo
+                if (grupo.toLowerCase().includes('canais') || grupo.toLowerCase().includes('news')) continue;
 
                 let tipo = 'filmes';
                 if (grupo.toLowerCase().includes('serie') || grupo.toLowerCase().includes('season')) tipo = 'series';
                 else if (grupo.toLowerCase().includes('anime')) tipo = 'animes';
 
-                itens.push({ nome, capa, link, grupo, tipo });
+                itemAtual = { nome, capa, grupo, tipo };
+            } else if (linha.startsWith('http') && itemAtual) {
+                itemAtual.link = linha;
+                itens.push(itemAtual);
+                itemAtual = null;
             }
         }
         return itens;
     }
 
     function filtrarTipo(tipo, btn) {
-        TIPO_ATUAL = tipo;
         document.querySelectorAll('.tipo-menu .btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-
-        // Criar subcategorias
         const subCatDiv = document.getElementById('sub-categorias');
         const grupos = [...new Set(TODOS_ITENS.filter(i => i.tipo === tipo).map(i => i.grupo))];
         
@@ -171,28 +115,21 @@
         grupos.forEach(g => {
             subCatDiv.innerHTML += `<button class="btn" onclick="renderizar('${tipo}', '${g}', this)">${g}</button>`;
         });
-
         renderizar(tipo, 'todas', subCatDiv.firstChild);
     }
 
     function renderizar(tipo, grupo, btn) {
         document.querySelectorAll('#sub-categorias .btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-
         const grid = document.getElementById('main-grid');
         grid.innerHTML = '';
-
-        const filtrados = TODOS_ITENS.filter(i => {
-            const matchTipo = i.tipo === tipo;
-            const matchGrupo = grupo === 'todas' || i.grupo === grupo;
-            return matchTipo && matchGrupo;
-        });
+        const filtrados = TODOS_ITENS.filter(i => i.tipo === tipo && (grupo === 'todas' || i.grupo === grupo));
 
         filtrados.forEach(item => {
             const div = document.createElement('div');
             div.className = 'card';
             div.onclick = () => abrirPlayer(item.link);
-            div.innerHTML = `<img src="${item.capa}" loading="lazy" onerror="this.src='https://via.placeholder.com/150x200?text=Sem+Capa'"><p>${item.nome}</p>`;
+            div.innerHTML = `<img src="${item.capa}" loading="lazy" onerror="this.src='https://via.placeholder.com/150x200/222/fff?text=SOLANO'"><p>${item.nome}</p>`;
             grid.appendChild(div);
         });
     }
@@ -218,6 +155,6 @@
 </script>
 
 </body>
-</html>                         
+</html>                
 
     
