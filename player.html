@@ -3,68 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV - Player PRO</title>
-    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <title>SolanoTV - Player</title>
     <style>
-        body { background: #000; margin: 0; color: white; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; }
-        header { background: #b70909; padding: 10px; display: flex; align-items: center; gap: 10px; }
-        .btn-voltar { color: white; text-decoration: none; font-weight: bold; background: rgba(0,0,0,0.3); padding: 8px 15px; border-radius: 4px; font-size: 14px; }
-        #player-wrapper { flex-grow: 1; display: flex; align-items: center; justify-content: center; background: #000; }
-        #video-player { width: 100%; max-width: 1000px; aspect-ratio: 16/9; }
-        .info { padding: 15px; text-align: center; }
-        h2 { margin: 0; font-size: 16px; color: #eee; }
+        body { background-color: #000; color: white; font-family: sans-serif; margin: 0; padding: 0; text-align: center; overflow: hidden; }
+        header { padding: 15px; background: #1a1a1a; display: flex; align-items: center; border-bottom: 1px solid #e50914; }
+        .back-btn { color: #e50914; text-decoration: none; font-weight: bold; margin-right: 20px; font-size: 18px; }
+        
+        /* Container para Player */
+        .video-container { position: relative; width: 100%; height: 75vh; background: #000; }
+        
+        /* O "Pulo do Gato": Usar a tag VIDEO em vez de IFRAME para links de IPTV */
+        video { width: 100%; height: 100%; outline: none; }
+
+        .info-video { padding: 15px; text-align: left; background: #0d0d0d; height: 25vh; }
+        h2 { color: #e50914; margin: 0 0 5px 0; font-size: 18px; }
+        p { color: #ccc; font-size: 13px; margin: 0; }
     </style>
 </head>
 <body>
 
     <header>
-        <a href="index.html" class="btn-voltar">⬅ VOLTAR</a>
-        <h2 id="titulo">Carregando...</h2>
+        <a href="index.html" class="back-btn">← VOLTAR</a>
+        <span id="titulo-topo" style="font-weight: bold; letter-spacing: 1px;">SOLANOTV</span>
     </header>
 
-    <div id="player-wrapper">
-        <div id="video-player"></div>
+    <div class="video-container" id="player">
+        <video id="video-obj" controls autoplay playsinline></video>
     </div>
 
-    <div class="info">
-        <small id="status-link">Verificando sinal...</small>
+    <div class="info-video">
+        <h2 id="nome-item">Carregando título...</h2>
+        <p>Você está conectado ao servidor oficial SolanoTV. Se o vídeo travar, verifique sua conexão ou tente recarregar.</p>
     </div>
 
     <script>
-        // 1. Pegar dados da URL
-        const params = new URLSearchParams(window.location.search);
-        const urlOriginal = params.get('link');
-        const nome = params.get('nome');
-        const capa = params.get('capa');
-
-        document.getElementById('titulo').innerText = nome;
-        document.getElementById('status-link').innerText = "Link: " + urlOriginal;
-
-        // 2. Configurar o Player
-        if (urlOriginal) {
-            var player = new Clappr.Player({
-                source: urlOriginal,
-                parentId: "#video-player",
-                width: '100%',
-                height: '100%',
-                autoPlay: true,
-                poster: capa,
-                preload: 'auto',
-                hlsjsConfig: {
-                    enableWorker: true,
-                },
-                events: {
-                    onReady: function() { console.log("Player Pronto"); },
-                    onError: function(e) { 
-                        console.log("Erro no Player:", e);
-                        document.getElementById('status-link').innerHTML = 
-                        "<span style='color:red;'>Erro ao reproduzir. Tente abrir no celular ou use a extensão CORS no PC.</span>";
-                    }
-                }
-            });
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoUrl = urlParams.get('url');
+        const nomeItem = urlParams.get('nome');
+        
+        if(videoUrl) {
+            const v = document.getElementById('video-obj');
+            v.src = videoUrl;
+            document.getElementById('nome-item').innerText = nomeItem || "Assistindo Agora";
+            document.getElementById('titulo-topo').innerText = nomeItem || "SOLANOTV";
         } else {
-            document.getElementById('video-player').innerHTML = "Link inválido.";
+            document.getElementById('player').innerHTML = `<div style="padding: 50px;">Link inválido ou expirado.</div>`;
         }
     </script>
+
 </body>
 </html>
