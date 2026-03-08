@@ -1,111 +1,70 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV - Oficial</title>
+    <title>Solano TV - Oficial</title>
     <style>
-        :root { --red: #e50914; --bg: #0d0d0d; --card: #1a1a1a; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; text-align: center; }
-        header { padding: 15px; background: #1a1a1a; border-bottom: 2px solid var(--red); sticky; top: 0; z-index: 100; }
-        .logo { font-size: 24px; font-weight: bold; color: var(--red); letter-spacing: 2px; }
-        
-        .menu-tipos { display: flex; justify-content: center; gap: 10px; padding: 15px; background: #000; }
-        .btn-tipo { background: #222; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-tipo.active { background: var(--red); }
-
+        body { background: #050505; color: white; font-family: sans-serif; margin: 0; text-align: center; }
+        header { padding: 20px; border-bottom: 2px solid #e50914; background: #000; font-weight: bold; font-size: 24px; color: #e50914; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; padding: 20px; }
-        .card { background: var(--card); border-radius: 8px; overflow: hidden; cursor: pointer; border: 1px solid #333; transition: 0.3s; }
-        .card:hover { transform: scale(1.05); border-color: var(--red); }
-        .card img { width: 100%; height: 180px; object-fit: cover; background: #222; }
-        .card p { font-size: 11px; padding: 8px; margin: 0; height: 35px; overflow: hidden; }
-        
-        #loading { padding: 50px; color: #888; font-style: italic; }
+        .card { background: #111; border-radius: 8px; overflow: hidden; border: 1px solid #222; cursor: pointer; }
+        .card img { width: 100%; height: 180px; object-fit: cover; }
+        .card p { font-size: 11px; padding: 5px; margin: 0; height: 30px; overflow: hidden; }
+        #loading { padding: 100px; color: #e50914; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<header><div class="logo">SOLANOTV</div></header>
-
-<div class="menu-tipos">
-    <button class="btn-tipo active" onclick="filtrar('canais', this)">TV AO VIVO</button>
-    <button class="btn-tipo" onclick="filtrar('filmes', this)">FILMES</button>
-    <button class="btn-tipo" onclick="filtrar('series', this)">SÉRIES</button>
-</div>
-
-<div id="loading">Sincronizando Canais e Filmes...</div>
+<header>SOLANO TV</header>
+<div id="loading">Sincronizando 112MB de conteúdo... <br><small style="color:grey">Isso pode levar 30 segundos na primeira vez.</small></div>
 <div id="grid" class="grid"></div>
 
 <script>
-    const USER = "434188849";
-    const PASS = "606908195";
-    const URL_M3U = `https://p2pro.fun/get.php?username=${USER}&password=${PASS}&type=m3u_plus&output=hls`;
-    const PROXY = "https://api.allorigins.win/raw?url=";
-
-    let TODOS_ITENS = [];
-
     async function carregar() {
+        const USER = "434188849";
+        const PASS = "606908195";
+        // Link da sua lista real
+        const linkM3U = `https://p2pro.fun/get.php?username=${USER}&password=${PASS}&type=m3u_plus&output=ts`;
+        
+        // Proxy para o navegador aceitar o arquivo de 112MB como TEXTO
+        const proxy = "https://api.allorigins.win/raw?url=";
+
         try {
-            const res = await fetch(PROXY + encodeURIComponent(URL_M3U));
-            const data = await res.text();
+            const res = await fetch(proxy + encodeURIComponent(linkM3U));
+            const texto = await res.text(); // Aqui ele transforma o "áudio" em texto!
+
+            if(!texto.includes("#EXTM3U")) throw new Error();
+
+            document.getElementById('loading').style.display = 'none';
+            const grid = document.getElementById('grid');
+            const linhas = texto.split('\n');
             
-            const linhas = data.split('\n');
             let item = null;
+            let limite = 0;
 
             linhas.forEach(l => {
                 if (l.startsWith('#EXTINF:')) {
-                    const g = l.match(/group-title="(.*?)"/)?.[1] || "Geral";
-                    let tipo = 'filmes';
-                    
-                    // Lógica para identificar Canais
-                    if (g.toLowerCase().includes('canais') || g.toLowerCase().includes('abertos') || g.toLowerCase().includes('news')) {
-                        tipo = 'canais';
-                    } else if (g.toLowerCase().includes('serie')) {
-                        tipo = 'series';
-                    }
-
                     item = {
                         nome: l.split(',')[1] || "Sem Nome",
-                        img: l.match(/tvg-logo="(.*?)"/)?.[1] || "https://via.placeholder.com/150x200?text=SOLANO",
-                        tipo: tipo
+                        capa: l.match(/tvg-logo="(.*?)"/)?.[1] || "https://via.placeholder.com/150x200?text=SOLANO"
                     };
                 } else if (l.startsWith('http') && item) {
-                    item.link = l.trim();
-                    TODOS_ITENS.push(item);
+                    if (limite < 500) { // Mostra só os primeiros 500 para o celular não travar
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `<img src="${item.capa}"><p>${item.nome}</p>`;
+                        const urlFinal = l.trim();
+                        card.onclick = () => window.location.href = `player.html?url=${encodeURIComponent(urlFinal)}&nome=${encodeURIComponent(item.nome)}`;
+                        grid.appendChild(card);
+                        limite++;
+                    }
                     item = null;
                 }
             });
-
-            document.getElementById('loading').style.display = 'none';
-            filtrar('canais', document.querySelector('.btn-tipo')); // Começa mostrando canais
-
         } catch (e) {
-            document.getElementById('loading').innerHTML = "Erro ao carregar lista. Verifique sua conexão.";
+            document.getElementById('loading').innerHTML = "O servidor P2PRO demorou a responder.<br>Tente atualizar a página!";
         }
     }
-
-    function filtrar(tipo, btn) {
-        document.querySelectorAll('.btn-tipo').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const grid = document.getElementById('grid');
-        grid.innerHTML = "";
-
-        const filtrados = TODOS_ITENS.filter(i => i.tipo === tipo);
-        
-        filtrados.slice(0, 500).forEach(item => { // Mostra os primeiros 500 para não travar
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `<img src="${item.img}" loading="lazy"><p>${item.nome}</p>`;
-            
-            // Aqui ele envia para o seu player.html
-            card.onclick = () => {
-                window.location.href = `player.html?url=${encodeURIComponent(item.link)}&nome=${encodeURIComponent(item.nome)}`;
-            };
-            grid.appendChild(card);
-        });
-    }
-
     window.onload = carregar;
 </script>
 </body>
