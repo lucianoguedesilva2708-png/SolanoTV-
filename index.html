@@ -5,133 +5,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solano TV - Oficial</title>
     <style>
-        :root { --primary: #e50914; --bg: #0a0a0a; --card-bg: #141414; --text: #fff; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; }
-        header { position: sticky; top: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); padding: 15px; z-index: 1000; border-bottom: 1px solid #222; text-align: center; }
-        .logo { font-size: 22px; font-weight: 900; color: var(--primary); margin-bottom: 10px; }
-        .menu, .categorias-bar { display: flex; overflow-x: auto; gap: 8px; padding: 5px; justify-content: center; }
-        .categorias-bar { justify-content: flex-start; scrollbar-width: none; }
-        .btn { background: #222; color: #fff; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 12px; white-space: nowrap; }
-        .btn.active { background: var(--primary); }
-        .container { display: grid; padding: 15px; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; }
-        .card { background: var(--card-bg); border-radius: 8px; overflow: hidden; border: 1px solid #222; cursor: pointer; }
-        .card img { width: 100%; height: 170px; object-fit: cover; background: #222; }
-        .card p { padding: 5px; font-size: 11px; text-align: center; margin: 0; height: 30px; overflow: hidden; }
-        #player-modal { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; flex-direction: column; }
-        .fechar { padding: 20px; color: #fff; font-size: 30px; align-self: flex-end; cursor: pointer; background: none; border: none; }
-        video { width: 100%; height: auto; max-height: 80vh; margin: auto; }
-        #status { text-align: center; padding: 50px; color: #888; }
+        body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; text-align: center; }
+        header { padding: 20px; border-bottom: 2px solid #e50914; background: #111; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px; }
+        .card { background: #1a1a1a; border-radius: 10px; overflow: hidden; cursor: pointer; border: 1px solid #333; transition: 0.3s; }
+        .card:hover { transform: scale(1.05); border-color: #e50914; }
+        .card img { width: 100%; height: 200px; object-fit: cover; }
+        .card p { font-size: 11px; padding: 10px; margin: 0; height: 35px; overflow: hidden; }
+        #loading { padding: 100px; color: #888; font-size: 18px; }
+        #player { display:none; position:fixed; inset:0; background:#000; z-index:9999; }
+        .close { position:absolute; top:20px; right:20px; font-size:50px; color:#fff; cursor:pointer; z-index:10000; }
+        video { width:100%; height:100%; }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="logo">SOLANO TV</div>
-    <div class="menu">
-        <button class="btn active" onclick="mudarTipo('filmes', this)">FILMES</button>
-        <button class="btn" onclick="mudarTipo('series', this)">SÉRIES</button>
-        <button class="btn" onclick="mudarTipo('animes', this)">ANIMES</button>
-    </div>
-    <div id="sub-cats" class="categorias-bar"></div>
-</header>
+<header><h1>SOLANO TV</h1></header>
 
-<div id="status">Conectando ao servidor P2PRO...</div>
-<div id="main-grid" class="container"></div>
+<div id="loading">Sincronizando com servidor P2PRO...<br><small>Aguarde a resposta do link...</small></div>
+<div id="grid" class="grid"></div>
 
-<div id="player-modal">
-    <button class="fechar" onclick="fecharPlayer()">&times;</button>
-    <div id="vid-cont" style="display:flex; flex:1;"></div>
+<div id="player">
+    <span class="close" onclick="fechar()">&times;</span>
+    <video id="vid" controls autoplay></video>
 </div>
 
 <script>
-    const URL_LISTA = 'https://p2pro.fun/get.php?username=434188849&password=606908195&type=m3u_plus&output=hls';
-    let DADOS = [];
+    // Usando o seu link encurtado
+    const URL_ENCURTADA = 'https://test.rb.gy/2nm';
 
     async function carregar() {
-        const status = document.getElementById('status');
+        const grid = document.getElementById('grid');
+        const loading = document.getElementById('loading');
+
         try {
-            // Tentativa com um proxy diferente (Corsproxy.io)
-            const res = await fetch('https://corsproxy.io/?' + encodeURIComponent(URL_LISTA));
-            if (!res.ok) throw new Error();
+            // O Proxy "cors-anywhere" disfarçado para tentar pular o bloqueio
+            const proxy = "https://api.allorigins.win/raw?url=";
+            const res = await fetch(proxy + encodeURIComponent(URL_ENCURTADA));
             const texto = await res.text();
-            
-            DADOS = interpretarM3U(texto);
-            status.style.display = 'none';
-            mudarTipo('filmes', document.querySelector('.menu .btn'));
+
+            // Se o texto não começar com #EXTM3U, o link redirecionou para uma página de erro
+            if (!texto.includes("#EXTM3U")) {
+                throw new Error("O servidor entregou uma página de erro, não a lista.");
+            }
+
+            loading.style.display = 'none';
+            const linhas = texto.split('\n');
+            let itemAtual = null;
+
+            linhas.forEach(linha => {
+                linha = linha.trim();
+                if (linha.startsWith('#EXTINF:')) {
+                    itemAtual = {
+                        nome: linha.split(',')[1] || "Sem Nome",
+                        capa: linha.match(/tvg-logo="(.*?)"/)?.[1] || "https://via.placeholder.com/150x200?text=Sem+Capa"
+                    };
+                } else if (linha.startsWith('http') && itemAtual) {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `<img src="${itemAtual.capa}"><p>${itemAtual.nome}</p>`;
+                    
+                    const videoUrl = linha;
+                    card.onclick = () => {
+                        document.getElementById('player').style.display = 'block';
+                        const v = document.getElementById('vid');
+                        v.src = videoUrl;
+                        v.play();
+                    };
+                    grid.appendChild(card);
+                    itemAtual = null;
+                }
+            });
+
         } catch (e) {
-            status.innerHTML = `<b style="color:var(--primary)">Erro de Conexão</b><br>O servidor da lista bloqueou o acesso.<br><br>
-            <button onclick="window.location.reload()" style="padding:10px; border-radius:5px; border:none; cursor:pointer;">Tentar Novamente</button>`;
+            loading.innerHTML = `<b style="color:#e50914">ACESSO NEGADO</b><br><br>
+            O servidor da P2PRO bloqueou a conexão automática.<br><br>
+            <b>Como resolver:</b><br>
+            1. Abra o link <a href="${URL_ENCURTADA}" target="_blank" style="color:#fff">CLICANDO AQUI</a>.<br>
+            2. Se ele baixar um arquivo, renomeie para <b>dados.txt</b> e suba no seu GitHub.<br>
+            3. Se ele NÃO abrir nada, sua conta P2PRO pode estar vencida ou bloqueada para Web.`;
         }
     }
 
-    function interpretarM3U(txt) {
-        const itens = [];
-        const linhas = txt.split('\n');
-        let obj = null;
-
-        linhas.forEach(l => {
-            if (l.includes('#EXTINF:')) {
-                const g = l.match(/group-title="(.*?)"/)?.[1] || "Geral";
-                const c = l.match(/tvg-logo="(.*?)"/)?.[1] || "";
-                const n = l.split(',')[1] || "Sem nome";
-                
-                if (!g.toLowerCase().includes('canais')) {
-                    let t = 'filmes';
-                    if (g.toLowerCase().includes('serie') || g.toLowerCase().includes('season')) t = 'series';
-                    else if (g.toLowerCase().includes('anime')) t = 'animes';
-                    obj = { n, c, g, t };
-                }
-            } else if (l.startsWith('http') && obj) {
-                obj.l = l.trim();
-                itens.push(obj);
-                obj = null;
-            }
-        });
-        return itens;
-    }
-
-    function mudarTipo(tipo, btn) {
-        document.querySelectorAll('.menu .btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        const sub = document.getElementById('sub-cats');
-        const grupos = [...new Set(DADOS.filter(i => i.t === tipo).map(i => i.g))];
-        
-        sub.innerHTML = `<button class="btn active" onclick="render('todas', '${tipo}', this)">TUDO</button>`;
-        grupos.forEach(g => {
-            sub.innerHTML += `<button class="btn" onclick="render('${g}', '${tipo}', this)">${g}</button>`;
-        });
-        render('todas', tipo, sub.firstChild);
-    }
-
-    function render(grupo, tipo, btn) {
-        document.querySelectorAll('#sub-cats .btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        const grid = document.getElementById('main-grid');
-        grid.innerHTML = '';
-        
-        DADOS.filter(i => i.t === tipo && (grupo === 'todas' || i.g === grupo)).forEach(item => {
-            const d = document.createElement('div');
-            d.className = 'card';
-            d.onclick = () => abrir(item.l);
-            d.innerHTML = `<img src="${item.c}" onerror="this.src='https://via.placeholder.com/150x170/222/fff?text=DVD'"><p>${item.n}</p>`;
-            grid.appendChild(d);
-        });
-    }
-
-    function abrir(url) {
-        document.getElementById('player-modal').style.display = 'flex';
-        document.getElementById('vid-cont').innerHTML = `<video controls autoplay src="${url}"></video>`;
-    }
-
-    function fecharPlayer() {
-        document.getElementById('player-modal').style.display = 'none';
-        document.getElementById('vid-cont').innerHTML = '';
+    function fechar() {
+        document.getElementById('player').style.display = 'none';
+        const v = document.getElementById('vid');
+        v.pause();
+        v.src = "";
     }
 
     window.onload = carregar;
 </script>
+
 </body>
 </html>
     
