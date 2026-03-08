@@ -3,160 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solano TV - Oficial</title>
+    <title>SolanoTV - Oficial</title>
     <style>
-        :root { --primary: #e50914; --bg: #050505; --card-bg: #111; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
+        :root { --red: #e50914; --bg: #0d0d0d; --card: #1a1a1a; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; text-align: center; }
+        header { padding: 15px; background: #1a1a1a; border-bottom: 2px solid var(--red); sticky; top: 0; z-index: 100; }
+        .logo { font-size: 24px; font-weight: bold; color: var(--red); letter-spacing: 2px; }
         
-        header { background: #000; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1000; }
-        .logo { font-size: 24px; font-weight: 900; color: var(--primary); cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
-        
-        /* Área de Administração Secreta */
-        #admin-panel { display: none; background: #1a1a1a; padding: 20px; border-bottom: 1px solid #333; text-align: center; }
-        .admin-input { padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #444; background: #000; color: white; width: 250px; }
-        
-        .search-container { padding: 15px; text-align: center; }
-        #busca { width: 80%; max-width: 500px; padding: 12px; border-radius: 25px; border: 1px solid #333; background: #111; color: white; outline: none; }
+        .menu-tipos { display: flex; justify-content: center; gap: 10px; padding: 15px; background: #000; }
+        .btn-tipo { background: #222; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-tipo.active { background: var(--red); }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 15px; padding: 20px; max-width: 1400px; margin: 0 auto; }
-        .card { background: var(--card-bg); border-radius: 8px; overflow: hidden; border: 1px solid #222; cursor: pointer; transition: 0.3s; position: relative; }
-        .card:hover { transform: scale(1.08); border-color: var(--primary); z-index: 10; }
-        .card img { width: 100%; height: 200px; object-fit: cover; background: #222; }
-        .card p { font-size: 11px; padding: 8px; margin: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* Player Modal */
-        #player-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:2000; flex-direction: column; justify-content: center; align-items: center; }
-        video { width: 90%; max-width: 1000px; border-radius: 10px; box-shadow: 0 0 30px var(--primary); }
-        .close { position:absolute; top:20px; right:30px; font-size:50px; cursor:pointer; color:white; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; padding: 20px; }
+        .card { background: var(--card); border-radius: 8px; overflow: hidden; cursor: pointer; border: 1px solid #333; transition: 0.3s; }
+        .card:hover { transform: scale(1.05); border-color: var(--red); }
+        .card img { width: 100%; height: 180px; object-fit: cover; background: #222; }
+        .card p { font-size: 11px; padding: 8px; margin: 0; height: 35px; overflow: hidden; }
         
-        #loading { padding: 100px; text-align: center; color: #888; font-style: italic; }
+        #loading { padding: 50px; color: #888; font-style: italic; }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="logo" onclick="toggleAdmin()">SOLANO TV</div>
-    <div id="btn-adm-trigger" style="opacity: 0.1; cursor: pointer;" onclick="toggleAdmin()">⚙️</div>
-</header>
+<header><div class="logo">SOLANOTV</div></header>
 
-<div id="admin-panel">
-    <h3 style="margin:0 0 15px 0; color:var(--primary)">Configurações do Sistema</h3>
-    <input type="text" id="adm-url" class="admin-input" placeholder="Servidor (ex: http://p2pro.fun)">
-    <input type="text" id="adm-user" class="admin-input" placeholder="Usuário">
-    <input type="text" id="adm-pass" class="admin-input" placeholder="Senha">
-    <br>
-    <button onclick="salvarConfig()" style="margin-top:10px; padding:10px 30px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">ATUALIZAR LISTA</button>
+<div class="menu-tipos">
+    <button class="btn-tipo active" onclick="filtrar('canais', this)">TV AO VIVO</button>
+    <button class="btn-tipo" onclick="filtrar('filmes', this)">FILMES</button>
+    <button class="btn-tipo" onclick="filtrar('series', this)">SÉRIES</button>
 </div>
 
-<div class="search-container">
-    <input type="text" id="busca" placeholder="Pesquisar filmes ou séries..." onkeyup="filtrar()">
-</div>
-
-<div id="loading">Sincronizando com P2PRO...</div>
-<div id="main-grid" class="grid"></div>
-
-<div id="player-modal">
-    <span class="close" onclick="fecharPlayer()">&times;</span>
-    <div id="video-box" style="width:100%; display:flex; justify-content:center;"></div>
-</div>
+<div id="loading">Sincronizando Canais e Filmes...</div>
+<div id="grid" class="grid"></div>
 
 <script>
-    /* -----------------------------------------------------------
-       PULO DO GATO: DADOS JÁ CONFIGURADOS ABAIXO
-       ----------------------------------------------------------- */
-    const DADOS_PADRAO = {
-        url: 'https://p2pro.fun',
-        user: '434188849',
-        pass: '606908195'
-    };
+    const USER = "434188849";
+    const PASS = "606908195";
+    const URL_M3U = `https://p2pro.fun/get.php?username=${USER}&password=${PASS}&type=m3u_plus&output=hls`;
+    const PROXY = "https://api.allorigins.win/raw?url=";
 
-    // Pega a config do Admin ou usa a Padrão
-    let config = JSON.parse(localStorage.getItem('solano_config')) || DADOS_PADRAO;
+    let TODOS_ITENS = [];
 
-    function toggleAdmin() {
-        const panel = document.getElementById('admin-panel');
-        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function salvarConfig() {
-        const novaConfig = {
-            url: document.getElementById('adm-url').value,
-            user: document.getElementById('adm-user').value,
-            pass: document.getElementById('adm-pass').value
-        };
-        localStorage.setItem('solano_config', JSON.stringify(novaConfig));
-        alert("Configurações salvas! O site irá reiniciar.");
-        location.reload();
-    }
-
-    async function carregarConteudo() {
-        const loading = document.getElementById('loading');
-        const grid = document.getElementById('main-grid');
-        
-        // Monta a URL da lista baseada na config atual
-        const m3uUrl = `${config.url}/get.php?username=${config.user}&password=${config.pass}&type=m3u_plus&output=hls`;
-        
-        // Proxy para evitar erro de conexão (CORS)
-        const proxy = "https://api.allorigins.win/raw?url=";
-
+    async function carregar() {
         try {
-            const res = await fetch(proxy + encodeURIComponent(m3uUrl));
+            const res = await fetch(PROXY + encodeURIComponent(URL_M3U));
             const data = await res.text();
             
-            if(!data.includes("#EXTM3U")) throw new Error();
-
-            loading.style.display = 'none';
             const linhas = data.split('\n');
             let item = null;
 
             linhas.forEach(l => {
-                if(l.startsWith('#EXTINF:')) {
-                    const grupo = l.match(/group-title="(.*?)"/)?.[1] || "";
-                    // Filtra apenas Filmes e Séries (pula canais ao vivo)
-                    if(grupo.toLowerCase().includes('canais')) return;
+                if (l.startsWith('#EXTINF:')) {
+                    const g = l.match(/group-title="(.*?)"/)?.[1] || "Geral";
+                    let tipo = 'filmes';
+                    
+                    // Lógica para identificar Canais
+                    if (g.toLowerCase().includes('canais') || g.toLowerCase().includes('abertos') || g.toLowerCase().includes('news')) {
+                        tipo = 'canais';
+                    } else if (g.toLowerCase().includes('serie')) {
+                        tipo = 'series';
+                    }
 
                     item = {
-                        nome: l.split(',')[1] || "Título Indisponível",
-                        capa: l.match(/tvg-logo="(.*?)"/)?.[1] || "https://via.placeholder.com/150x200?text=SOLANO+TV"
+                        nome: l.split(',')[1] || "Sem Nome",
+                        img: l.match(/tvg-logo="(.*?)"/)?.[1] || "https://via.placeholder.com/150x200?text=SOLANO",
+                        tipo: tipo
                     };
-                } else if(l.startsWith('http') && item) {
-                    const linkFinal = l.trim();
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `<img src="${item.capa}" loading="lazy"><p>${item.nome}</p>`;
-                    card.onclick = () => abrirPlayer(linkFinal);
-                    grid.appendChild(card);
+                } else if (l.startsWith('http') && item) {
+                    item.link = l.trim();
+                    TODOS_ITENS.push(item);
                     item = null;
                 }
             });
+
+            document.getElementById('loading').style.display = 'none';
+            filtrar('canais', document.querySelector('.btn-tipo')); // Começa mostrando canais
+
         } catch (e) {
-            loading.innerHTML = `<b style="color:var(--primary)">ERRO DE CONEXÃO</b><br>O servidor P2PRO não respondeu. <br><button onclick="location.reload()" style="margin-top:10px;">Tentar de novo</button>`;
+            document.getElementById('loading').innerHTML = "Erro ao carregar lista. Verifique sua conexão.";
         }
     }
 
-    function abrirPlayer(url) {
-        document.getElementById('player-modal').style.display = 'flex';
-        document.getElementById('video-box').innerHTML = `<video id="v-obj" controls autoplay src="${url}"></video>`;
-    }
+    function filtrar(tipo, btn) {
+        document.querySelectorAll('.btn-tipo').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
 
-    function fecharPlayer() {
-        document.getElementById('player-modal').style.display = 'none';
-        document.getElementById('video-box').innerHTML = '';
-    }
+        const grid = document.getElementById('grid');
+        grid.innerHTML = "";
 
-    function filtrar() {
-        const busca = document.getElementById('busca').value.toLowerCase();
-        document.querySelectorAll('.card').forEach(card => {
-            card.style.display = card.innerText.toLowerCase().includes(busca) ? 'block' : 'none';
+        const filtrados = TODOS_ITENS.filter(i => i.tipo === tipo);
+        
+        filtrados.slice(0, 500).forEach(item => { // Mostra os primeiros 500 para não travar
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `<img src="${item.img}" loading="lazy"><p>${item.nome}</p>`;
+            
+            // Aqui ele envia para o seu player.html
+            card.onclick = () => {
+                window.location.href = `player.html?url=${encodeURIComponent(item.link)}&nome=${encodeURIComponent(item.nome)}`;
+            };
+            grid.appendChild(card);
         });
     }
 
-    window.onload = () => {
-        document.getElementById('adm-url').value = config.url;
-        document.getElementById('adm-user').value = config.user;
-        document.getElementById('adm-pass').value = config.pass;
-        carregarConteudo();
-    };
+    window.onload = carregar;
 </script>
 </body>
 </html>
