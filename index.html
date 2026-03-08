@@ -3,137 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolanoTV PRO - Oficial</title>
+    <title>Solano TV - Catálogo Profissional</title>
     <style>
-        :root { --cor: #b70909; --bg: #0d0d0d; --card: #1a1a1a; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 50px; overflow-x: hidden; }
-        
-        /* Header e Busca */
-        header { background: var(--cor); padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 1000; }
-        .controles { background: #111; position: sticky; top: 50px; z-index: 999; padding: 10px; border-bottom: 2px solid var(--cor); }
-        input { width: 94%; padding: 12px; border-radius: 5px; border: none; background: #222; color: white; margin-bottom: 10px; }
-        
-        /* Menu de Categorias */
-        .menu-cats { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
-        .menu-cats::-webkit-scrollbar { display: none; }
-        .btn-cat { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; white-space: nowrap; }
-        .btn-cat.active { background: var(--cor); }
+        :root {
+            --primary: #e50914; 
+            --bg-dark: #0a0a0a;
+            --card-bg: #141414;
+            --text: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0; padding: 0;
+        }
+
+        header {
+            position: sticky; top: 0;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0; z-index: 1000;
+            border-bottom: 1px solid #222;
+        }
+
+        .logo {
+            text-align: center; font-size: 24px; font-weight: 900;
+            color: var(--primary); letter-spacing: 2px; margin-bottom: 15px;
+        }
+
+        /* Menu Principal (Filmes, Séries...) */
+        .tipo-menu {
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
+        }
+
+        /* Barra de Subcategorias (Rolável) */
+        .categorias-bar {
+            display: flex; overflow-x: auto; white-space: nowrap;
+            padding: 10px 20px; gap: 10px; scrollbar-width: none;
+        }
+        .categorias-bar::-webkit-scrollbar { display: none; }
+
+        .btn {
+            background: #222; color: #fff; border: none;
+            padding: 8px 18px; border-radius: 20px;
+            cursor: pointer; font-size: 13px; font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn.active { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+
+        .search-box {
+            display: flex; justify-content: center; padding: 10px;
+        }
+        #inputBusca {
+            width: 90%; max-width: 400px; padding: 10px 20px;
+            border-radius: 20px; border: 1px solid #333;
+            background: #1a1a1a; color: white; outline: none;
+        }
 
         /* Grid */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; padding: 10px; }
-        .card { background: var(--card); border-radius: 6px; text-decoration: none; color: white; overflow: hidden; height: 175px; border: 1px solid #222; transition: 0.2s; }
-        .card img { width: 100%; height: 125px; object-fit: cover; background: #000; }
-        .card h3 { font-size: 10px; margin: 0; padding: 5px; text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        
-        #loading { text-align: center; padding: 50px; color: var(--cor); }
+        .container {
+            display: grid; padding: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 15px; max-width: 1400px; margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg); border-radius: 8px;
+            overflow: hidden; transition: 0.3s; cursor: pointer;
+            border: 1px solid #222;
+        }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .card img { width: 100%; height: 190px; object-fit: cover; }
+        .card p { padding: 8px; font-size: 11px; margin: 0; text-align: center; }
+
+        /* Player */
+        #player-modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: #000;
+            z-index: 2000; flex-direction: column;
+        }
+        .fechar-btn {
+            padding: 20px; color: white; font-size: 30px;
+            cursor: pointer; align-self: flex-end;
+        }
+        video { width: 100%; max-width: 1000px; margin: auto; }
+
+        #loading { text-align: center; padding: 50px; color: #666; }
     </style>
 </head>
 <body>
 
-<header>SOLANOTV PRO</header>
-
-<div class="controles">
-    <input type="text" id="busca" placeholder="O que vamos assistir hoje?" oninput="filtrar()">
-    <div class="menu-cats">
-        <button class="btn-cat active" onclick="mudarCat('TV', this)">CANAIS TV</button>
-        <button class="btn-cat" onclick="mudarCat('Movies', this)">FILMES</button>
-        <button class="btn-cat" onclick="mudarCat('Series', this)">SÉRIES</button>
+<header>
+    <div class="logo">SOLANO TV</div>
+    <div class="tipo-menu">
+        <button class="btn active" onclick="filtrarTipo('filmes', this)">FILMES</button>
+        <button class="btn" onclick="filtrarTipo('series', this)">SÉRIES</button>
+        <button class="btn" onclick="filtrarTipo('animes', this)">ANIMES</button>
     </div>
+    <div id="sub-categorias" class="categorias-bar">
+        </div>
+    <div class="search-box">
+        <input type="text" id="inputBusca" placeholder="Buscar título..." onkeyup="buscar()">
+    </div>
+</header>
+
+<div id="loading">Sincronizando catálogo...</div>
+<div id="main-grid" class="container"></div>
+
+<div id="player-modal">
+    <button class="fechar-btn" onclick="fecharPlayer()">&times;</button>
+    <div id="video-container" style="display: flex; justify-content: center; height: 100%;"></div>
 </div>
 
-<div id="loading">SINCRONIZANDO LISTA...</div>
-<div class="grid" id="container"></div>
-
 <script>
-    const M3U_URL = "http://p2pro.fun/get.php?username=434188849&password=606908195&type=m3u_plus&output=hls";
-    const PROXY = "https://api.codetabs.com/v1/proxy?quest=";
-    
-    let db = [];
-    let seriesAgrupadas = {};
-    let catAtual = 'TV';
-    let exibidos = 0;
-    const STEP = 50;
+    const URL_LISTA = 'https://p2pro.fun/get.php?username=434188849&password=606908195&type=m3u_plus&output=hls';
+    let TODOS_ITENS = [];
+    let TIPO_ATUAL = 'filmes';
 
     async function carregar() {
         try {
-            const res = await fetch(PROXY + encodeURIComponent(M3U_URL));
-            const data = await res.text();
-            processar(data);
-        } catch (e) { document.getElementById('loading').innerText = "Erro ao conectar."; }
+            let raw = localStorage.getItem('solano_cache_v3');
+            if(!raw) {
+                const res = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(URL_LISTA));
+                raw = await res.text();
+                localStorage.setItem('solano_cache_v3', raw);
+            }
+            TODOS_ITENS = processar(raw);
+            document.getElementById('loading').style.display = 'none';
+            filtrarTipo('filmes', document.querySelector('.tipo-menu .btn'));
+        } catch (e) { document.getElementById('loading').innerText = "Erro ao carregar lista."; }
     }
 
     function processar(texto) {
+        const itens = [];
         const linhas = texto.split('\n');
         for (let i = 0; i < linhas.length; i++) {
-            if (linhas[i].includes("#EXTINF:")) {
-                let nome = linhas[i].split(',').pop().trim();
-                let logo = linhas[i].match(/tvg-logo="([^"]+)"/)?.[1] || "";
-                let url = linhas[i+1]?.trim();
-                
-                if (url && url.startsWith("http")) {
-                    let c = "TV";
-                    if (url.includes("/movie/")) c = "Movies";
-                    else if (url.includes("/series/")) {
-                        c = "Series";
-                        let sNome = nome.split(/S\d+|E\d+/i)[0].trim();
-                        if (!seriesAgrupadas[sNome]) {
-                            seriesAgrupadas[sNome] = { n: sNome, l: logo, eps: [] };
-                            db.push({ n: sNome, l: logo, u: 'SERIE', c: 'Series' });
-                        }
-                        seriesAgrupadas[sNome].eps.push({ n: nome, u: url });
-                        continue;
-                    }
-                    db.push({ n: nome, l: logo, u: url, c: c });
-                }
+            if (linhas[i].startsWith('#EXTINF:')) {
+                const info = linhas[i];
+                const link = linhas[i+1]?.trim();
+                const grupo = info.match(/group-title="(.*?)"/)?.[1] || "Sem Categoria";
+                const nome = info.split(',')[1] || "Sem nome";
+                const capa = info.match(/tvg-logo="(.*?)"/)?.[1] || "";
+
+                if (grupo.toLowerCase().includes('canais')) continue;
+
+                let tipo = 'filmes';
+                if (grupo.toLowerCase().includes('serie') || grupo.toLowerCase().includes('season')) tipo = 'series';
+                else if (grupo.toLowerCase().includes('anime')) tipo = 'animes';
+
+                itens.push({ nome, capa, link, grupo, tipo });
             }
         }
-        document.getElementById('loading').style.display = 'none';
-        render(true);
+        return itens;
     }
 
-    function render(limpar = false) {
-        const container = document.getElementById('container');
-        if (limpar) { container.innerHTML = ''; exibidos = 0; }
-        
-        const busca = document.getElementById('busca').value.toLowerCase();
-        const filtrados = db.filter(i => i.c === catAtual && i.n.toLowerCase().includes(busca));
-        
-        const novos = filtrados.slice(exibidos, exibidos + STEP);
-        container.innerHTML += novos.map(item => {
-            // DECISÃO DE PLAYER: Canais vão para player_canais.html
-            let playerP = (item.c === 'TV') ? 'player_canais.html' : 'player.html';
-            
-            let acao = item.u === 'SERIE' 
-                ? `onclick="verEps('${item.n.replace(/'/g, "\\'")}'); return false;" href="#"`
-                : `href="${playerP}?nome=${encodeURIComponent(item.n)}&link=${encodeURIComponent(item.u)}&capa=${encodeURIComponent(item.l)}"`;
-            
-            return `<a ${acao} class="card"><img src="${item.l}" loading="lazy" onerror="this.src='https://via.placeholder.com/150x125?text=SOLANO'"><h3>${item.n}</h3></a>`;
-        }).join('');
-        exibidos += STEP;
-    }
-
-    function mudarCat(cat, btn) {
-        catAtual = cat;
-        document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('active'));
+    function filtrarTipo(tipo, btn) {
+        TIPO_ATUAL = tipo;
+        document.querySelectorAll('.tipo-menu .btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        window.scrollTo(0,0);
-        render(true);
+
+        // Criar subcategorias
+        const subCatDiv = document.getElementById('sub-categorias');
+        const grupos = [...new Set(TODOS_ITENS.filter(i => i.tipo === tipo).map(i => i.grupo))];
+        
+        subCatDiv.innerHTML = `<button class="btn active" onclick="renderizar('${tipo}', 'todas', this)">TUDO</button>`;
+        grupos.forEach(g => {
+            subCatDiv.innerHTML += `<button class="btn" onclick="renderizar('${tipo}', '${g}', this)">${g}</button>`;
+        });
+
+        renderizar(tipo, 'todas', subCatDiv.firstChild);
     }
 
-    function filtrar() { render(true); }
+    function renderizar(tipo, grupo, btn) {
+        document.querySelectorAll('#sub-categorias .btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
 
-    function verEps(nome) {
-        const s = seriesAgrupadas[nome];
-        document.body.innerHTML = `<button style="background:red;color:white;padding:15px;width:100%;border:none;font-weight:bold" onclick="location.reload()">⬅ VOLTAR</button><div class="grid">` + 
-            s.eps.map(e => `<a href="player.html?nome=${encodeURIComponent(e.n)}&link=${encodeURIComponent(e.u)}&capa=${encodeURIComponent(s.l)}" class="card"><img src="${s.l}"><h3>${e.n}</h3></a>`).join('') + `</div>`;
+        const grid = document.getElementById('main-grid');
+        grid.innerHTML = '';
+
+        const filtrados = TODOS_ITENS.filter(i => {
+            const matchTipo = i.tipo === tipo;
+            const matchGrupo = grupo === 'todas' || i.grupo === grupo;
+            return matchTipo && matchGrupo;
+        });
+
+        filtrados.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.onclick = () => abrirPlayer(item.link);
+            div.innerHTML = `<img src="${item.capa}" loading="lazy" onerror="this.src='https://via.placeholder.com/150x200?text=Sem+Capa'"><p>${item.nome}</p>`;
+            grid.appendChild(div);
+        });
     }
 
-    window.onscroll = () => {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) render();
-    };
+    function buscar() {
+        const busca = document.getElementById('inputBusca').value.toLowerCase();
+        document.querySelectorAll('.card').forEach(card => {
+            card.style.display = card.innerText.toLowerCase().includes(busca) ? 'block' : 'none';
+        });
+    }
 
-    carregar();
+    function abrirPlayer(link) {
+        document.getElementById('player-modal').style.display = 'flex';
+        document.getElementById('video-container').innerHTML = `<video controls autoplay src="${link}"></video>`;
+    }
+
+    function fecharPlayer() {
+        document.getElementById('player-modal').style.display = 'none';
+        document.getElementById('video-container').innerHTML = '';
+    }
+
+    window.onload = carregar;
 </script>
+
 </body>
 </html>                         
 
