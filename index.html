@@ -5,98 +5,159 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solano TV - Oficial</title>
     <style>
-        body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; text-align: center; }
-        header { padding: 20px; border-bottom: 2px solid #e50914; background: #111; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px; }
-        .card { background: #1a1a1a; border-radius: 10px; overflow: hidden; cursor: pointer; border: 1px solid #333; transition: 0.3s; }
-        .card:hover { transform: scale(1.05); border-color: #e50914; }
-        .card img { width: 100%; height: 200px; object-fit: cover; }
-        .card p { font-size: 11px; padding: 10px; margin: 0; height: 35px; overflow: hidden; }
-        #loading { padding: 100px; color: #888; font-size: 18px; }
-        #player { display:none; position:fixed; inset:0; background:#000; z-index:9999; }
-        .close { position:absolute; top:20px; right:20px; font-size:50px; color:#fff; cursor:pointer; z-index:10000; }
-        video { width:100%; height:100%; }
+        :root { --primary: #e50914; --bg: #050505; --card-bg: #111; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
+        
+        header { background: #000; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 24px; font-weight: 900; color: var(--primary); cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
+        
+        /* Área de Administração Secreta */
+        #admin-panel { display: none; background: #1a1a1a; padding: 20px; border-bottom: 1px solid #333; text-align: center; }
+        .admin-input { padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #444; background: #000; color: white; width: 250px; }
+        
+        .search-container { padding: 15px; text-align: center; }
+        #busca { width: 80%; max-width: 500px; padding: 12px; border-radius: 25px; border: 1px solid #333; background: #111; color: white; outline: none; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 15px; padding: 20px; max-width: 1400px; margin: 0 auto; }
+        .card { background: var(--card-bg); border-radius: 8px; overflow: hidden; border: 1px solid #222; cursor: pointer; transition: 0.3s; position: relative; }
+        .card:hover { transform: scale(1.08); border-color: var(--primary); z-index: 10; }
+        .card img { width: 100%; height: 200px; object-fit: cover; background: #222; }
+        .card p { font-size: 11px; padding: 8px; margin: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Player Modal */
+        #player-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:2000; flex-direction: column; justify-content: center; align-items: center; }
+        video { width: 90%; max-width: 1000px; border-radius: 10px; box-shadow: 0 0 30px var(--primary); }
+        .close { position:absolute; top:20px; right:30px; font-size:50px; cursor:pointer; color:white; }
+        
+        #loading { padding: 100px; text-align: center; color: #888; font-style: italic; }
     </style>
 </head>
 <body>
 
-<header><h1>SOLANO TV</h1></header>
+<header>
+    <div class="logo" onclick="toggleAdmin()">SOLANO TV</div>
+    <div id="btn-adm-trigger" style="opacity: 0.1; cursor: pointer;" onclick="toggleAdmin()">⚙️</div>
+</header>
 
-<div id="loading">Sincronizando com servidor P2PRO...<br><small>Aguarde a resposta do link...</small></div>
-<div id="grid" class="grid"></div>
+<div id="admin-panel">
+    <h3 style="margin:0 0 15px 0; color:var(--primary)">Configurações do Sistema</h3>
+    <input type="text" id="adm-url" class="admin-input" placeholder="Servidor (ex: http://p2pro.fun)">
+    <input type="text" id="adm-user" class="admin-input" placeholder="Usuário">
+    <input type="text" id="adm-pass" class="admin-input" placeholder="Senha">
+    <br>
+    <button onclick="salvarConfig()" style="margin-top:10px; padding:10px 30px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">ATUALIZAR LISTA</button>
+</div>
 
-<div id="player">
-    <span class="close" onclick="fechar()">&times;</span>
-    <video id="vid" controls autoplay></video>
+<div class="search-container">
+    <input type="text" id="busca" placeholder="Pesquisar filmes ou séries..." onkeyup="filtrar()">
+</div>
+
+<div id="loading">Sincronizando com P2PRO...</div>
+<div id="main-grid" class="grid"></div>
+
+<div id="player-modal">
+    <span class="close" onclick="fecharPlayer()">&times;</span>
+    <div id="video-box" style="width:100%; display:flex; justify-content:center;"></div>
 </div>
 
 <script>
-    // Usando o seu link encurtado
-    const URL_ENCURTADA = 'https://test.rb.gy/2nm';
+    /* -----------------------------------------------------------
+       PULO DO GATO: DADOS JÁ CONFIGURADOS ABAIXO
+       ----------------------------------------------------------- */
+    const DADOS_PADRAO = {
+        url: 'https://p2pro.fun',
+        user: '434188849',
+        pass: '606908195'
+    };
 
-    async function carregar() {
-        const grid = document.getElementById('grid');
+    // Pega a config do Admin ou usa a Padrão
+    let config = JSON.parse(localStorage.getItem('solano_config')) || DADOS_PADRAO;
+
+    function toggleAdmin() {
+        const panel = document.getElementById('admin-panel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function salvarConfig() {
+        const novaConfig = {
+            url: document.getElementById('adm-url').value,
+            user: document.getElementById('adm-user').value,
+            pass: document.getElementById('adm-pass').value
+        };
+        localStorage.setItem('solano_config', JSON.stringify(novaConfig));
+        alert("Configurações salvas! O site irá reiniciar.");
+        location.reload();
+    }
+
+    async function carregarConteudo() {
         const loading = document.getElementById('loading');
+        const grid = document.getElementById('main-grid');
+        
+        // Monta a URL da lista baseada na config atual
+        const m3uUrl = `${config.url}/get.php?username=${config.user}&password=${config.pass}&type=m3u_plus&output=hls`;
+        
+        // Proxy para evitar erro de conexão (CORS)
+        const proxy = "https://api.allorigins.win/raw?url=";
 
         try {
-            // O Proxy "cors-anywhere" disfarçado para tentar pular o bloqueio
-            const proxy = "https://api.allorigins.win/raw?url=";
-            const res = await fetch(proxy + encodeURIComponent(URL_ENCURTADA));
-            const texto = await res.text();
-
-            // Se o texto não começar com #EXTM3U, o link redirecionou para uma página de erro
-            if (!texto.includes("#EXTM3U")) {
-                throw new Error("O servidor entregou uma página de erro, não a lista.");
-            }
+            const res = await fetch(proxy + encodeURIComponent(m3uUrl));
+            const data = await res.text();
+            
+            if(!data.includes("#EXTM3U")) throw new Error();
 
             loading.style.display = 'none';
-            const linhas = texto.split('\n');
-            let itemAtual = null;
+            const linhas = data.split('\n');
+            let item = null;
 
-            linhas.forEach(linha => {
-                linha = linha.trim();
-                if (linha.startsWith('#EXTINF:')) {
-                    itemAtual = {
-                        nome: linha.split(',')[1] || "Sem Nome",
-                        capa: linha.match(/tvg-logo="(.*?)"/)?.[1] || "https://via.placeholder.com/150x200?text=Sem+Capa"
+            linhas.forEach(l => {
+                if(l.startsWith('#EXTINF:')) {
+                    const grupo = l.match(/group-title="(.*?)"/)?.[1] || "";
+                    // Filtra apenas Filmes e Séries (pula canais ao vivo)
+                    if(grupo.toLowerCase().includes('canais')) return;
+
+                    item = {
+                        nome: l.split(',')[1] || "Título Indisponível",
+                        capa: l.match(/tvg-logo="(.*?)"/)?.[1] || "https://via.placeholder.com/150x200?text=SOLANO+TV"
                     };
-                } else if (linha.startsWith('http') && itemAtual) {
+                } else if(l.startsWith('http') && item) {
+                    const linkFinal = l.trim();
                     const card = document.createElement('div');
                     card.className = 'card';
-                    card.innerHTML = `<img src="${itemAtual.capa}"><p>${itemAtual.nome}</p>`;
-                    
-                    const videoUrl = linha;
-                    card.onclick = () => {
-                        document.getElementById('player').style.display = 'block';
-                        const v = document.getElementById('vid');
-                        v.src = videoUrl;
-                        v.play();
-                    };
+                    card.innerHTML = `<img src="${item.capa}" loading="lazy"><p>${item.nome}</p>`;
+                    card.onclick = () => abrirPlayer(linkFinal);
                     grid.appendChild(card);
-                    itemAtual = null;
+                    item = null;
                 }
             });
-
         } catch (e) {
-            loading.innerHTML = `<b style="color:#e50914">ACESSO NEGADO</b><br><br>
-            O servidor da P2PRO bloqueou a conexão automática.<br><br>
-            <b>Como resolver:</b><br>
-            1. Abra o link <a href="${URL_ENCURTADA}" target="_blank" style="color:#fff">CLICANDO AQUI</a>.<br>
-            2. Se ele baixar um arquivo, renomeie para <b>dados.txt</b> e suba no seu GitHub.<br>
-            3. Se ele NÃO abrir nada, sua conta P2PRO pode estar vencida ou bloqueada para Web.`;
+            loading.innerHTML = `<b style="color:var(--primary)">ERRO DE CONEXÃO</b><br>O servidor P2PRO não respondeu. <br><button onclick="location.reload()" style="margin-top:10px;">Tentar de novo</button>`;
         }
     }
 
-    function fechar() {
-        document.getElementById('player').style.display = 'none';
-        const v = document.getElementById('vid');
-        v.pause();
-        v.src = "";
+    function abrirPlayer(url) {
+        document.getElementById('player-modal').style.display = 'flex';
+        document.getElementById('video-box').innerHTML = `<video id="v-obj" controls autoplay src="${url}"></video>`;
     }
 
-    window.onload = carregar;
-</script>
+    function fecharPlayer() {
+        document.getElementById('player-modal').style.display = 'none';
+        document.getElementById('video-box').innerHTML = '';
+    }
 
+    function filtrar() {
+        const busca = document.getElementById('busca').value.toLowerCase();
+        document.querySelectorAll('.card').forEach(card => {
+            card.style.display = card.innerText.toLowerCase().includes(busca) ? 'block' : 'none';
+        });
+    }
+
+    window.onload = () => {
+        document.getElementById('adm-url').value = config.url;
+        document.getElementById('adm-user').value = config.user;
+        document.getElementById('adm-pass').value = config.pass;
+        carregarConteudo();
+    };
+</script>
 </body>
 </html>
     
